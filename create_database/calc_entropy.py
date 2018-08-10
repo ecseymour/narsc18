@@ -21,8 +21,8 @@ cur = con.cursor()
 # first calc using diversity including asian and 'other'
 # calculate for 90, 00, and 2010
 
-# years = ['90', '00', '10']
-years = ['10']
+years = ['90', '00', '10']
+# years = ['10']
 
 for y in years:
 	
@@ -65,12 +65,23 @@ for y in years:
 			entropy_s = row[1]
 			entropy_index += ( total_s * ( data_dict[k]['entropy_r'] - entropy_s ) ) / ( data_dict[k]['entropy_r'] * data_dict[k]['total_r'] )
 
-		data_dict[k]['entropy_index_{}'.format(y)] = entropy_index
+		data_dict[k]['entropy_index'] = entropy_index
 
 	df = pd.DataFrame.from_dict(data_dict, orient='index')
 
-df.index.names =['GISJOIN']
-df.to_sql('county_entropy_index', con, if_exists='replace')
+	if y == "10":
+		df_2010 = df
+	elif y == "00":
+		df_2000 = df
+	elif y == "90":
+		df_1990 = df
+
+merged = pd.merge(df_2010, df_2000, left_index=True, right_index=True, suffixes=("_10", "_00"))
+df_1990 = df_1990.add_suffix("_90")
+merged = pd.merge(merged, df_1990, left_index=True, right_index=True, )
+
+merged.index.names =['GISJOIN']
+merged.to_sql('county_entropy_index', con, if_exists='replace')
 
 con.close()
 
