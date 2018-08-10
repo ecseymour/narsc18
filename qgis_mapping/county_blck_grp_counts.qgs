@@ -3,15 +3,13 @@
   <title></title>
   <autotransaction active="0"/>
   <evaluateDefaultValues active="0"/>
-  <layer-tree-group expanded="1" checked="Qt::Checked" name="">
+  <layer-tree-group expanded="1" checked="Qt::PartiallyChecked" name="">
     <customproperties/>
     <layer-tree-layer expanded="1" providerKey="spatialite" checked="Qt::Checked" id="tl_2010_us_state1020180809103211174" source="dbname='/home/eric/Documents/franklin/county_loss/data/county_population.sqlite' table=&quot;tl_2010_us_state10&quot; (geometry) sql=" name="tl_2010_us_state10">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" providerKey="spatialite" checked="Qt::Checked" id="gini20180810143223946" source="dbname='/bigdrive/franklin/narsc2018/generated_data/narsc18.sqlite' table=&quot;(select A.*, B.geometry&#xa;from county_gini AS A JOIN us_county_2010 AS B&#xa;ON A.GISJOIN = B.geoid10&#xa;)&quot; (geometry) sql=" name="gini">
-      <customproperties>
-        <property key="showFeatureCount" value="1"/>
-      </customproperties>
+    <layer-tree-layer expanded="1" providerKey="spatialite" checked="Qt::Unchecked" id="gini20180810150850938" source="dbname='/bigdrive/franklin/narsc2018/generated_data/narsc18.sqlite' table=&quot;(select A.*, B.geometry&#xa;from county_gini AS A JOIN us_county_2010 AS B&#xa;ON A.GISJOIN = B.GISJOIN&#xa;)&quot; (geometry) sql=" name="gini">
+      <customproperties/>
     </layer-tree-layer>
     <layer-tree-layer expanded="1" providerKey="delimitedtext" checked="Qt::Checked" id="blck_grp_county20180809083840154" source="file:///home/eric/Documents/franklin/narsc2018/generated_data/blck_grp_county.csv?type=csv&amp;skipEmptyFields=Yes&amp;geomType=none&amp;subsetIndex=no&amp;watchFile=no" name="blck_grp_county">
       <customproperties/>
@@ -55,6 +53,7 @@
       <layer_coordinate_transform destAuthId="EPSG:102003" srcAuthId="EPSG:102003" srcDatumTransform="-1" destDatumTransform="-1" layerid="segregation20180809224447930"/>
       <layer_coordinate_transform destAuthId="EPSG:102003" srcAuthId="EPSG:102003" srcDatumTransform="-1" destDatumTransform="-1" layerid="us_county_201020180809224559487"/>
       <layer_coordinate_transform destAuthId="EPSG:102003" srcAuthId="EPSG:102003" srcDatumTransform="-1" destDatumTransform="-1" layerid="gini20180810143223946"/>
+      <layer_coordinate_transform destAuthId="EPSG:102003" srcAuthId="EPSG:102003" srcDatumTransform="-1" destDatumTransform="-1" layerid="gini20180810150850938"/>
       <layer_coordinate_transform destAuthId="EPSG:102003" srcAuthId="EPSG:102003" srcDatumTransform="-1" destDatumTransform="-1" layerid="us_blck_grp_201020180809100744021"/>
     </layer_coordinate_transform_info>
   </mapcanvas>
@@ -64,7 +63,7 @@
       <item>blck_grp_county20180809083840154</item>
       <item>tl_2010_us_state1020180809103211174</item>
       <item>us_county_201020180809224559487</item>
-      <item>gini20180810143223946</item>
+      <item>gini20180810150850938</item>
     </custom-order>
   </layer-tree-canvas>
   <legend updateDrawingOrder="true">
@@ -73,9 +72,9 @@
         <legendlayerfile isInOverview="0" layerid="tl_2010_us_state1020180809103211174" visible="1"/>
       </filegroup>
     </legendlayer>
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="gini" showFeatureCount="1">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="gini" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="gini20180810143223946" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="gini20180810150850938" visible="0"/>
       </filegroup>
     </legendlayer>
     <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="blck_grp_county" showFeatureCount="0">
@@ -119,6 +118,76 @@
     <rendermaptile>0</rendermaptile>
     <layer_coordinate_transform_info/>
   </mapcanvas>
+  <Composer title="subunit_count" visible="0">
+    <Composition resizeToContentsMarginLeft="0" snapping="0" showPages="1" guidesVisible="1" resizeToContentsMarginTop="0" worldFileMap="{b88aff18-c937-49cc-b39f-fbeb579a85e4}" alignmentSnap="1" printResolution="300" paperWidth="297" gridVisible="0" snapGridOffsetX="0" smartGuides="1" snapGridOffsetY="0" resizeToContentsMarginRight="0" snapTolerancePixels="5" printAsRaster="0" generateWorldFile="0" paperHeight="210" numPages="1" snapGridResolution="10" resizeToContentsMarginBottom="0">
+      <symbol alpha="1" clip_to_extent="1" type="fill" name="">
+        <layer pass="0" class="SimpleFill" locked="0">
+          <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
+          <prop k="color" v="255,255,255,255"/>
+          <prop k="joinstyle" v="miter"/>
+          <prop k="offset" v="0,0"/>
+          <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
+          <prop k="offset_unit" v="MM"/>
+          <prop k="outline_color" v="0,0,0,255"/>
+          <prop k="outline_style" v="no"/>
+          <prop k="outline_width" v="0.26"/>
+          <prop k="outline_width_unit" v="MM"/>
+          <prop k="style" v="solid"/>
+        </layer>
+      </symbol>
+      <ComposerLegend symbolWidth="7" title="" rasterBorderWidth="0" titleAlignment="1" map="0" wmsLegendWidth="50" rasterBorderColor="0,0,0,255" wrapChar="" fontColor="#000000" legendFilterByAtlas="0" columnCount="1" wmsLegendHeight="25" columnSpace="2" symbolHeight="4" equalColumnWidth="0" resizeToContents="1" splitLayer="0" boxSpace="2" rasterBorder="1">
+        <styles>
+          <style marginBottom="2" name="title">
+            <styleFont description="Noto Sans,16,-1,5,50,0,0,0,0,0" style=""/>
+          </style>
+          <style marginTop="2" name="group">
+            <styleFont description="Noto Sans,14,-1,5,50,0,0,0,0,0" style=""/>
+          </style>
+          <style marginTop="2" name="subgroup">
+            <styleFont description="Noto Sans,12,-1,5,50,0,0,0,0,0" style=""/>
+          </style>
+          <style marginTop="2" name="symbol">
+            <styleFont description="Noto Sans,9,-1,5,50,0,0,0,0,0" style=""/>
+          </style>
+          <style marginTop="2" marginLeft="2" name="symbolLabel">
+            <styleFont description="Noto Sans,12,-1,5,50,0,0,0,0,0" style=""/>
+          </style>
+        </styles>
+        <layer-tree-group expanded="1" checked="Qt::Checked" name="">
+          <customproperties/>
+          <layer-tree-layer expanded="1" providerKey="spatialite" checked="Qt::Checked" id="us_county_201020180809083803521" source="dbname='/home/eric/Documents/franklin/narsc2018/generated_data/narsc18.sqlite' table=&quot;us_county_2010&quot; (geometry) sql=" name="us_county_2010">
+            <customproperties>
+              <property key="legend/title-label" value="Block groups per county 2010"/>
+              <property key="showFeatureCount" value="1"/>
+            </customproperties>
+          </layer-tree-layer>
+        </layer-tree-group>
+        <ComposerItem pagey="140.114" page="1" id="" lastValidViewScaleFactor="-1" positionMode="0" positionLock="false" x="10.6312" y="140.114" visibility="1" zValue="2" background="true" transparency="0" frameJoinStyle="miter" blendMode="0" width="76.1578" outlineWidth="0.3" excludeFromExports="0" uuid="{d029ba75-f379-4e7b-855a-d96bd9263d3b}" height="42" itemRotation="0" frame="false" pagex="10.6312">
+          <FrameColor alpha="255" red="0" blue="0" green="0"/>
+          <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
+          <customproperties/>
+        </ComposerItem>
+      </ComposerLegend>
+      <ComposerMap followPreset="false" mapRotation="0" keepLayerSet="false" followPresetName="" id="0" previewMode="Cache" drawCanvasItems="true">
+        <Extent ymin="-1811398.32513308152556419" xmin="-2650976.97275457996875048" ymax="1742155.38455869071185589" xmax="2405498.65526149328798056"/>
+        <LayerSet/>
+        <Grid/>
+        <AtlasMap scalingMode="2" atlasDriven="0" margin="0.10000000000000001"/>
+        <ComposerItem pagey="-2.22045e-16" page="1" id="" lastValidViewScaleFactor="3.66844" positionMode="0" positionLock="false" x="0" y="-2.22045e-16" visibility="1" zValue="1" background="true" transparency="0" frameJoinStyle="miter" blendMode="0" width="298.816" outlineWidth="0.3" excludeFromExports="0" uuid="{b88aff18-c937-49cc-b39f-fbeb579a85e4}" height="210" itemRotation="0" frame="false" pagex="0">
+          <FrameColor alpha="255" red="0" blue="0" green="0"/>
+          <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
+          <customproperties/>
+        </ComposerItem>
+      </ComposerMap>
+      <customproperties>
+        <property key="imageCropMarginBottom" value="0"/>
+        <property key="imageCropMarginLeft" value="0"/>
+        <property key="imageCropMarginRight" value="0"/>
+        <property key="imageCropMarginTop" value="0"/>
+        <property key="imageCropToContents" value="false"/>
+      </customproperties>
+    </Composition>
+  </Composer>
   <projectlayers>
     <maplayer minimumScale="0" maximumScale="1e+08" readOnly="0" geometry="No geometry" type="vector" hasScaleBasedVisibilityFlag="0">
       <id>blck_grp_county20180809083840154</id>
@@ -185,10 +254,10 @@
       <previewExpression></previewExpression>
     </maplayer>
     <maplayer simplifyAlgorithm="0" minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" readOnly="0" geometry="Polygon" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
-      <id>gini20180810143223946</id>
+      <id>gini20180810150850938</id>
       <datasource>dbname='../../generated_data/narsc18.sqlite' table="(select A.*, B.geometry
 from county_gini AS A JOIN us_county_2010 AS B
-ON A.GISJOIN = B.geoid10
+ON A.GISJOIN = B.GISJOIN
 )" (geometry) sql=</datasource>
       <keywordList>
         <value></value>
@@ -238,11 +307,11 @@ ON A.GISJOIN = B.geoid10
       </edittypes>
       <renderer-v2 attr="gini_10" forceraster="0" symbollevels="0" type="graduatedSymbol" graduatedMethod="GraduatedColor" enableorderby="0">
         <ranges>
-          <range render="true" symbol="0" lower="0.326850076060629" upper="0.421420097656541" label=" 0.327 - 0.421 "/>
-          <range render="true" symbol="1" lower="0.421420097656541" upper="0.447008119028689" label=" 0.421 - 0.447 "/>
-          <range render="true" symbol="2" lower="0.447008119028689" upper="0.471876386402875" label=" 0.447 - 0.472 "/>
-          <range render="true" symbol="3" lower="0.471876386402875" upper="0.502981407593694" label=" 0.472 - 0.503 "/>
-          <range render="true" symbol="4" lower="0.502981407593694" upper="0.631421746356046" label=" 0.503 - 0.631 "/>
+          <range render="true" symbol="0" lower="0.326850076060629" upper="0.422953696530282" label=" 0.327 - 0.423 "/>
+          <range render="true" symbol="1" lower="0.422953696530282" upper="0.447943960255817" label=" 0.423 - 0.448 "/>
+          <range render="true" symbol="2" lower="0.447943960255817" upper="0.473705928244604" label=" 0.448 - 0.474 "/>
+          <range render="true" symbol="3" lower="0.473705928244604" upper="0.506176724180140" label=" 0.474 - 0.506 "/>
+          <range render="true" symbol="4" lower="0.506176724180140" upper="0.631421746356046" label=" 0.506 - 0.631 "/>
         </ranges>
         <symbols>
           <symbol alpha="1" clip_to_extent="1" type="fill" name="0">
@@ -325,7 +394,7 @@ ON A.GISJOIN = B.geoid10
           <symbol alpha="1" clip_to_extent="1" type="fill" name="0">
             <layer pass="0" class="SimpleFill" locked="0">
               <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
-              <prop k="color" v="227,93,48,255"/>
+              <prop k="color" v="58,133,119,255"/>
               <prop k="joinstyle" v="bevel"/>
               <prop k="offset" v="0,0"/>
               <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
@@ -382,7 +451,7 @@ ON A.GISJOIN = B.geoid10
         <property key="labeling/fitInPolygonOnly" value="false"/>
         <property key="labeling/fontCapitals" value="0"/>
         <property key="labeling/fontFamily" value="Noto Sans"/>
-        <property key="labeling/fontItalic" value="false"/>
+        <property key="labeling/fontItalic" value="true"/>
         <property key="labeling/fontLetterSpacing" value="0"/>
         <property key="labeling/fontLimitPixelSize" value="false"/>
         <property key="labeling/fontMaxPixelSize" value="10000"/>
@@ -392,7 +461,7 @@ ON A.GISJOIN = B.geoid10
         <property key="labeling/fontSizeMapUnitScale" value="0,0,0,0,0,0"/>
         <property key="labeling/fontStrikeout" value="false"/>
         <property key="labeling/fontUnderline" value="false"/>
-        <property key="labeling/fontWeight" value="50"/>
+        <property key="labeling/fontWeight" value="75"/>
         <property key="labeling/fontWordSpacing" value="0"/>
         <property key="labeling/formatNumbers" value="false"/>
         <property key="labeling/isExpression" value="true"/>
@@ -560,7 +629,7 @@ ON A.GISJOIN = B.geoid10
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions default="-1"/>
-      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="74">
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
         <columns>
           <column width="-1" hidden="0" type="field" name="GISJOIN"/>
           <column width="-1" hidden="0" type="field" name="gini_10"/>
@@ -1973,6 +2042,12 @@ def my_form_open(dialog, layer, feature):
     </Legend>
     <DBManager>
       <savedQueries>
+        <q3644902746369488963>
+          <query type="QString">select A.*, B.geometry
+from county_gini AS A JOIN us_county_2010 AS B
+ON A.GISJOIN = B.GISJOIN;</query>
+          <name type="QString">gini</name>
+        </q3644902746369488963>
         <q6836552962914072405>
           <query type="QString">SELECT B.*, A.geometry
 FROM us_county_2010 AS A JOIN county_entropy_index AS B
