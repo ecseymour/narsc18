@@ -1,0 +1,14 @@
+
+
+Hi Rachel,
+
+Following up on our call last week, I was wondering if you could add some clarity on the NARSC project. It is difficult for me to do much more than analyze the basic relationships between the constructs laid out in the abstract, i.e., population loss, income inequality, and segregation, without a better sense of the conceptual framework. My knowledge is largely limited to neighborhoods, cities and metros. I am less certain how to think about the relationships between these constructs at the county scale, particularly when taking the entire US into consideration. 
+
+I think we both expect that income inequality is likely to fall in population loss areas, as wealthy inhabitants move out, leaving a homogeneous, lower-income population behind. But this is likely affected by the type of county, as population loss counties containing central cities might experience pop loss and increasing income inequality, with the immiseration of urban inhabitants and growing suburban affluence. Or perhaps localized gentrification increases inequality in loss areas. As you noted, there are several plausible explanations we could use to account for the observed relationship between pop loss and inequality in a given place. Could you provide with me some of your expectations / research hypotheses so that I can better structure my data analysis up front? I cut counties my metro and non-metro, as well as by USDA economic type, and we can go over this Tuesday, but we might need to think more about the role of geography in this project.
+
+Similarly, with regard to the relationship between pop change and segregation, I am uncertain how you think about this relationship at the county level. Just to lay out my thinking, pop loss in central cities is historically related to deepening urban-suburban segregation through white flight and exclusionary zoning. Over the last decade there has been a trend of Black and immigrant suburban migration, so the relationship between pop change and segregation may be lessened over the 2000s compared to the 1990s. I am unsure how to think about these relationships in rural areas, which likely exhibited less diversity in the first place.   
+
+Beyond the framework, and we can discuss this Tuesday, is the structure of the analysis. I am largely working with bivariate plots, cutting the data into subplots by metro/non-metro and economic base. Did you want me to develop a regression model? On the call, it sounded like this was a possibility, so I would need a pretty clear idea of the central relationships so I can put that together. 
+
+Thanks!
+-Eric 
