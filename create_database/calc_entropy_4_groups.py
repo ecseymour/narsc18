@@ -29,7 +29,7 @@ for y in years:
 	data_dict = {}
 	
 	cur.execute('''
-		SELECT A.gisjoin, A.total_3grp_{}, A.diversity_3grp_{} 
+		SELECT A.gisjoin, A.total_{}, A.diversity_4grp_{} 
 		FROM county_diversity AS A JOIN county_block_group_count AS B
 		ON A.GISJOIN = B.GISJOIN
 		WHERE B.block_groups >= 10
@@ -55,7 +55,7 @@ for y in years:
 		entropy_index = 0
 		
 		cur.execute('''
-			SELECT total_3grp_{}, diversity_3grp_{}
+			SELECT total_{}, diversity_4grp_{}
 			FROM blck_grp_diversity
 			WHERE SUBSTR(GISJOIN, 1, 8) = ?
 			'''.format(y, y), ([k]))
@@ -81,7 +81,7 @@ df_1990 = df_1990.add_suffix("_90")
 merged = pd.merge(merged, df_1990, left_index=True, right_index=True, )
 
 merged.index.names =['GISJOIN']
-merged.to_sql('county_segregation_3grp', con, if_exists='replace')
+merged.to_sql('county_segregation_4grp', con, if_exists='replace')
 
 con.close()
 

@@ -85,61 +85,72 @@ for y in years:
 			else:
 				pass
 
-	df['pwhite'] = df['CW7AA{}'.format(y)] * 1.0 / df['total']
-	df['pblack'] = df['CW7AB{}'.format(y)] * 1.0 / df['total']
-	df['pasian'] = df['CW7AD{}'.format(y)] * 1.0 / df['total']
+	# calc pct NH white, NH black, and NH asian
+	df['nh_white'] = df['CW7AA{}'.format(y)]
+	df['pwhite'] = df['nh_white'] * 1.0 / df['total']
 
-	if y in ['2010', '2000']:
-		df['phisp'] = ( df['CW7AG{}'.format(y)] + df['CW7AH{}'.format(y)] + df['CW7AI{}'.format(y)] + df['CW7AJ{}'.format(y)] + df['CW7AK{}'.format(y)] + df['CW7AL{}'.format(y)] ) * 1.0 / df['total']
-	else:
-		df['phisp'] = ( df['CW7AG{}'.format(y)] + df['CW7AH{}'.format(y)] + df['CW7AI{}'.format(y)] + df['CW7AJ{}'.format(y)] + df['CW7AK{}'.format(y)] ) * 1.0 / df['total']		
-
-	df['pother'] = ( df['CW7AC{}'.format(y)] + df['CW7AE{}'.format(y)] ) * 1.0 / df['total']
-
-	# print df.dtypes
+	df['nh_black'] = df['CW7AB{}'.format(y)]
+	df['pblack'] = df['nh_black'] / df['total']
 	
-	# calc multigroup entropy index
+	df['nh_asian'] = df['CW7AD{}'.format(y)]	
+	df['pasian'] = df['nh_asian'] * 1.0 / df['total']
+
+	# calc total and share hispanic
+	df['hisp'] = 0
+	if y in ['2010', '2000']:
+		for alpha in ['G', 'H', 'I', 'J', 'K', 'L']:
+			df['hisp'] += df['CW7A{}{}'.format(alpha, y)] 
+	
+		df['other'] = df['CW7AC{}'.format(y)] + df['CW7AE{}'.format(y)] + df['CW7AF{}'.format(y)]
+	
+	else: # if 1990
+		for alpha in ['G', 'H', 'I', 'J', 'K']:
+			df['hisp'] += df['CW7A{}{}'.format(alpha, y)] 
+
+		df['other'] = df['CW7AC{}'.format(y)] + df['CW7AE{}'.format(y)]
+
+	df['phisp'] = df['hisp'] * 1.0 / df['total']		
+	df['pother'] = df['other'] * 1.0 / df['total']
+
+	# calc multigroup entropy index FIVE GROUPS
 	# calc score excluding asian
 	# need to handle 0 values for group proportion
 	groups = ['pwhite', 'pblack', 'pasian', 'phisp', 'pother']
-	df['theil'] = 0
+	df['diversity_5grp'] = 0
 	for group in groups:
-		df.loc[df['{}'.format(group)] > 0.0, 'theil'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
+		df.loc[df['{}'.format(group)] > 0.0, 'diversity_5grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
 
-	print df['theil'].describe()
+	print df['diversity_5grp'].describe()
 	##################################################################################
-	# calc second measure of diversity excluding asian and "other" populations
+	# calc second measure grouping asian w/ "other" populations
+	df['other_4grp'] = df['other'] + df['nh_asian']
+	df['pother_4grp'] = df['other_4grp'] * 1.0 / df['total']
+	groups = ['pwhite', 'pblack', 'phisp', 'pother_4grp']
+	df['diversity_4grp'] = 0
+	for group in groups:
+		df.loc[df['{}'.format(group)] > 0.0, 'diversity_4grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
+	##################################################################################
+	# calc diversity excluding asian and "other" populations
 	# recalculate percantages using sum of nh white, nh black, and hispanic
 	# get counts for those groups and sum to create total
 	
-	df['total2'] = 0
+	df['total_3grp'] = df['nh_white'] + df['nh_black'] + df['hisp']
 
-	if y in ['2010', '2000']:
-		df['total2'] += df['CW7AA{}'.format(y)] # add nh whites
-		df['total2'] += df['CW7AB{}'.format(y)] # add nh blacks
-		# add hispanics
-		df['total2'] += ( df['CW7AG{}'.format(y)] + df['CW7AH{}'.format(y)] + df['CW7AI{}'.format(y)] + df['CW7AJ{}'.format(y)] + df['CW7AK{}'.format(y)] + df['CW7AL{}'.format(y)] ) 		
-	else:
-		df['total2'] += df['CW7AA{}'.format(y)] # add nh whites
-		df['total2'] += df['CW7AB{}'.format(y)] # add nh blacks
-		df['total2'] += ( df['CW7AG{}'.format(y)] + df['CW7AH{}'.format(y)] + df['CW7AI{}'.format(y)] + df['CW7AJ{}'.format(y)] + df['CW7AK{}'.format(y)] )
+	df['pwhite_3grp'] = df['nh_white'] * 1.0 / df['total_3grp']
+	df['pblack_3grp'] = df['nh_black'] * 1.0 / df['total_3grp']
+	df['phisp_3grp'] = df['hisp'] * 1.0 / df['total_3grp']
 
-	df['pwhite2'] = df['CW7AA{}'.format(y)] * 1.0 / df['total2']
-	df['pblack2'] = df['CW7AA{}'.format(y)] * 1.0 / df['total2']
-	
-	if y in ['2010', '2000']: 
-		df['phisp2'] = ( df['CW7AG{}'.format(y)] + df['CW7AH{}'.format(y)] + df['CW7AI{}'.format(y)] + df['CW7AJ{}'.format(y)] + df['CW7AK{}'.format(y)] + df['CW7AL{}'.format(y)] ) * 1.0 / df['total2'] 
-	else:
-		df['phisp2'] = ( df['CW7AG{}'.format(y)] + df['CW7AH{}'.format(y)] + df['CW7AI{}'.format(y)] + df['CW7AJ{}'.format(y)] + df['CW7AK{}'.format(y)] ) * 1.0 / df['total2']
-
-	groups2 = ['pwhite2', 'pblack2', 'phisp2']
-	df['theil2'] = 0
-	for group in groups2:
-		df.loc[df['{}'.format(group)] > 0.0, 'theil2'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
+	groups_3grp = ['pwhite_3grp', 'pblack_3grp', 'phisp_3grp']
+	df['diversity_3grp'] = 0
+	for group in groups_3grp:
+		df.loc[df['{}'.format(group)] > 0.0, 'diversity_3grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
 	##################################################################################
 
 	# create separate dataframes for each year to merge into single df
-	groups = ['pwhite', 'pblack', 'pasian', 'phisp', 'pother', 'theil', 'theil2', 'total', 'total2']
+	groups = ['nh_white', 'nh_black', 'nh_asian', 'hisp', 'other', 
+		'pwhite', 'pblack', 'pasian', 'phisp', 'pother', 
+		'diversity_5grp', 'diversity_4grp', 'diversity_3grp', 'total', 'total_3grp']
+	
 	if y == "2010":
 		df_2010 = df[groups]
 	elif y == "2000":
@@ -156,9 +167,7 @@ merged = pd.merge(merged, df_1990, left_index=True, right_index=True, )
 
 
 merged.to_sql("blck_grp_diversity", con, if_exists="replace")
-# cur.execute("DROP TABLE IF EXISTS county_diversity")
-# cur.execute("CREATE TABLE county_diversity;")
 
 con.close()
 
-print "done"
+print 'done'
