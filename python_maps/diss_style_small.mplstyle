@@ -1,0 +1,13 @@
+# matplotlibrc file
+figure.figsize : 5, 3.236
+axes.titlesize  : 8.0 
+axes.labelsize  : 8.0  # fontsize of the x any y labels  
+xtick.labelsize : 7.0  # fontsize of the tick labels  
+ytick.labelsize : 7.0  # fontsize of the tick labels  
+font.family     : sans-serif
+font.sans-serif : Helvetica, Computer Modern Sans serif
+text.usetex     : False
+pdf.fonttype : 42
+ps.fonttype : 42
+legend.fontsize : 7
+figure.dpi: 600

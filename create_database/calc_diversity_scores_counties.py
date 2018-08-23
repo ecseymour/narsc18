@@ -10,6 +10,7 @@ import sqlite3 as sql
 from string import ascii_uppercase
 import pandas as pd
 import numpy as np
+import math
 
 # connect to db
 db = "/home/eric/Documents/franklin/narsc2018/generated_data/narsc18.sqlite"
@@ -127,8 +128,23 @@ for y in years:
 	df['pother_4grp'] = df['other_4grp'] * 1.0 / df['total']
 	groups = ['pwhite', 'pblack', 'phisp', 'pother_4grp']
 	df['diversity_4grp'] = 0
+	df['interaction_4grp'] = 0 # Simpson's interaction index
+	df['shannon_4grp'] = 0
+	df['D1_4grp'] = 0 # Simpson's diversity index
 	for group in groups:
-		df.loc[df['{}'.format(group)] > 0.0, 'diversity_4grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
+		if group == 0:
+			df.loc[df['{}'.format(group)] > 0.0, 'diversity_4grp'] +=  0
+			df.loc[df['{}'.format(group)] > 0.0, 'D1_4grp'] +=  0
+			df.loc[df['{}'.format(group)] > 0.0, 'interaction_4grp'] += df['{}'.format(group)] * ( 1 - df['{}'.format(group)] )
+			df.loc[df['{}'.format(group)] > 0.0, 'shannon_4grp'] += df['{}'.format(group)] * np.log( df['{}'.format(group)] )
+		else:
+			df.loc[df['{}'.format(group)] > 0.0, 'diversity_4grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
+			df.loc[df['{}'.format(group)] > 0.0, 'D1_4grp'] += df['{}'.format(group)] ** 2
+			df.loc[df['{}'.format(group)] > 0.0, 'interaction_4grp'] += df['{}'.format(group)] * ( 1 - df['{}'.format(group)] )
+			df.loc[df['{}'.format(group)] > 0.0, 'shannon_4grp'] += df['{}'.format(group)] * np.log( df['{}'.format(group)] )
+
+	df['D1_4grp'] = 1 - df['D1_4grp'] 
+	df['shannon_4grp'] = df['shannon_4grp'] * -1
 	##################################################################################
 	# calc diversity excluding asian and "other" populations
 	# recalculate percantages using sum of nh white, nh black, and hispanic
@@ -149,8 +165,7 @@ for y in years:
 	# create separate dataframes for each year to merge into single df
 	groups = ['nh_white', 'nh_black', 'nh_asian', 'hisp', 'other', 
 		'pwhite', 'pblack', 'pasian', 'phisp', 'pother', 
-		'diversity_5grp', 'diversity_4grp', 'diversity_3grp', 'total', 'total_3grp']
-	
+		'diversity_5grp', 'diversity_4grp', 'D1_4grp', 'interaction_4grp', 'shannon_4grp', 'diversity_3grp', 'total', 'total_3grp']
 	
 	if y == "2010":
 		df_2010 = df[groups]
@@ -166,9 +181,18 @@ df_1990 = df_1990.add_suffix("_90")
 merged = pd.merge(merged, df_1990, left_index=True, right_index=True, )
 # print merged.columns
 
-
 merged.to_sql("county_diversity", con, if_exists="replace")
 
 con.close()
+
+# from matplotlib import pyplot as plt
+# import seaborn as sns
+# sns.set(style="ticks")
+
+# # merged.plot.scatter('diversity_4grp_10', 'shannon_4grp_10')
+# cols = ['diversity_4grp_10', 'shannon_4grp_10', 'D1_4grp_10', 'interaction_4grp_10']
+
+# sns.pairplot(merged[cols])
+# plt.show()
 
 print 'done'
