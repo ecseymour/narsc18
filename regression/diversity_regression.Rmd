@@ -1,9 +1,9 @@
 ---
 title: "Diversity analysis"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   html_notebook: default
 ---
 
@@ -18,8 +18,9 @@ library(ggplot2)
 
 # county analysis
 
-Regress difference in diversity (four-group entropy) on percent population change using piecewise regression. Enter separate variables for percent population loss just for pop. loss counties, i.e., variable is coded 0 where percent pop loss >= 0 and given the actual percent population loss when less than 0. I multiplied this variable by -1 so that positive coefficients for this variable would be interpreted as the effect for a one-percent increase in population _loss_. All county-level models include state-level fixed effects. Sample includes only counties in the contiguous US, excluding DC. See Glaeser's "Durable Housing" paper for similar use of piecewise pop loss and pop gain variables.
+Regress difference in diversity (four-group entropy) on percent population change using piecewise regression. Enter separate variables for percent population loss just for pop. loss counties, i.e., variable is coded 0 where percent pop loss >= 0 and given the actual percent population loss when less than 0. I multiplied this variable by -1 so that positive coefficients for this variable would be interpreted as the effect for a one-percent increase in population _loss_. All county-level models include state-level fixed effects. Sample includes only counties in the contiguous US, excluding DC. See Glaeser's ["Durable Housing" paper](https://scholar.harvard.edu/glaeser/publications/urban-decline-and-durable-housing) for similar use of piecewise pop loss and pop gain variables.
 
+In addition to using OLS to predict differences in diversity, I estiamte a logit model predicting the binary outcome of whether or not a county experienced a negative change in diversity. This seems to be the phenomenon of primary interest. Positive coefficients for pop. change in an OLS model predicting differences in diversity are useful for indicating whether more growth is linked to increased diversity, but not whether pop decline is linked to negative or positive changes in diversity. Indeed, only counties with extreme levels of population loss were predicted to have negative differences in diversity. The majority of counties, including pop. loss counties, experienced some degree of increase in diversity. 
 
 ## ols model
 
@@ -38,6 +39,22 @@ df_cty$region <- factor(df_cty$region)
 qplot(df_cty$diversity_diff, geom = "histogram")
 ```
 
+Note that most values for the DV are positive.
+
+```{r}
+# xtab frequences of loss counties and loss in diversity
+# intl is coded 1 for pop. loss counties
+# diversity_decline is coded 1 for diversity loss counties 
+df_cty %>%
+  count(intl, diversity_decline) %>%
+  mutate(prop = prop.table(n))
+```
+
+```{r}
+# percentage of loss counties that lost diversity
+111 / (111+974) * 100
+```
+
 ```{r}
 # Run model: OLS diff in diversity 2000 to 2010
 # include pop loss and pop gain piecewise
@@ -45,7 +62,7 @@ cty_ols_pwise <- lm(diversity_diff ~ pop_loss + pop_gain + pwhite_00 + log(pop00
 ```
 
 ```{r}
-# Adjust standard errors
+# Adjust standard errors for heteroskedasticity
 # coeftest(cty_ols_pwise, vcov = vcovHC(cty_ols_pwise, "HC1"))
 
 cov1 <- vcovHC(cty_ols_pwise, type = "HC1")
@@ -58,7 +75,7 @@ stargazer(cty_ols_pwise, cty_ols_pwise, se=list(NULL, robust_se1),
           type="text")
 ```
 
-Pop loss in these models is not associated with county differences in diversity scores, while pop. gain is positively associated with change in diversity.
+Robust standard errors indicate pop loss in these models is not associated with county differences in diversity scores, while pop. gain is positively associated with change in diversity. Inital pop and percent white are also associated with increased diversity.
 
 ## county logit model
 
@@ -82,9 +99,21 @@ stargazer(cty_logit_pwise, cty_logit_pwise, se=list(NULL, robust_se1),
 
 Pop. loss is associated with greater odds of a decrease in diversity, while pop gain is not associated with the binary outcome of loss vs. gain.
 
+
+```{r}
+# express as odds ratios
+OR.vector <- exp(cty_logit_pwise$coef)
+p.values <- summary(cty_logit_pwise)$coefficients[,4]
+                 
+stargazer(cty_logit_pwise, coef = list(OR.vector), p = list(p.values),
+          align = TRUE, single.row = TRUE,
+          omit = "STATE", notes = c("STATE fixed effects omitted", "Coeffs are odds ratios"),
+          type="text")
+```
+
 # tract analysis
 
-Include MSA fixed effects and dummy for outlying vs. central county.
+Sample includes all tracts in 50 largest MSAs. Dropped tracts w/ fewer than 100 people in 2000 to reduce extreme change observations. Models include MSA fixed effects and dummy for outlying vs. central county.
 
 ```{r}
 # load data
@@ -97,6 +126,19 @@ df_trt$Central_Outlying_County <- factor(df_trt$Central_Outlying_County)
 ```{r}
 # plot DV - difference in diversity
 qplot(df_trt$diversity_diff, geom = "histogram")
+```
+
+```{r}
+# how many loss tracts?
+# loss counted as 1, so 16387 loss counties
+df_trt %>%
+  count(intl, diversity_decline) %>%
+  mutate(prop = prop.table(n))
+```
+
+```{r}
+# percentage of loss tracts that lost diversity
+4101 / (4104+12283) * 100
 ```
 
 ```{r}
@@ -123,6 +165,10 @@ df_trt %>%
   geom_smooth(method = "lm", fill = NA)
 ```
 
+## ols model
+
+Predict difference in diversity on pop. loss and pop. gain. Includes MSA fixed effects.
+
 ```{r}
 # Run model: OLS diff in diversity 2000 to 2010
 # include pop loss and pop gain piecewise
@@ -142,7 +188,11 @@ stargazer(trt_ols_pwise, trt_ols_pwise, se=list(NULL, robust_se1),
           type="text")
 ```
 
-Pop loss not associated with change in diversity in this model, while pop. gain associated with increase. Percent white in 2000 is highly positively associated with increases in diversity. Initial population negatively associated with increasing diversity. Perhaps this has something to do w/ shrinking tracts often being those undergoing racial and ethnic transition. Tracts in outlying counties associated with smaller increases in diversity relative to tracts in central counties.  
+Pop loss not associated with change in diversity in this model, while pop. gain associated with increase. Percent white in 2000 is highly positively associated with increases in diversity. Initial population negatively associated with increasing diversity. Tracts in outlying counties associated with smaller increases in diversity relative to tracts in central counties.  
+
+## logit model
+
+Predict binary outcome of decrease in diversity.
 
 ```{r}
 trt_logit_pwise <- glm(formula = diversity_decline ~ pop_loss + pop_gain + pwhite_00 + log(pop00)
@@ -161,4 +211,16 @@ stargazer(trt_logit_pwise, trt_logit_pwise, se=list(NULL, robust_se1),
           type="text")
 ```
 
-Pop loss and pop gain are both associated with _lower_ odds of diversity loss. Coefficient is larger for loss tracts.
+Pop loss and pop gain are both associated with _lower_ odds of diversity loss. Coefficient is larger for loss tracts. Initial percent white has a substantial association w/ decreased odds of declining diversity.
+
+```{r}
+# express as odds ratios
+OR.vector <- exp(trt_logit_pwise$coef)
+p.values <- summary(trt_logit_pwise)$coefficients[,4]
+                 
+stargazer(trt_logit_pwise, coef = list(OR.vector), p = list(p.values),
+          align = TRUE, single.row = TRUE,
+          omit = "CBSA", notes = c("CBSA fixed effects omitted", "Coeffs are odds ratios"),
+          type="text")
+```
+
