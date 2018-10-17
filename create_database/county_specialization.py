@@ -40,7 +40,7 @@ for y in years:
 			CW7AK{},
 			CW7AL{}
 			FROM nhgis_pop_race_norm_90_10 
-			WHERE CW7AA{} <> '' AND CW7AA{} > 0 AND STATE <> 'Puerto Rico'
+			WHERE CW7AA{} <> '' AND CW7AA{} > 0 AND STATE NOT IN ('Puerto Rico', 'District Of Columbia', 'Alaska', 'Hawaii')
 			;
 			'''.format(y,y,y,y,y,y,y,y,y,y,y,y,y,y)
 
@@ -59,7 +59,7 @@ for y in years:
 			CW7AJ{},
 			CW7AK{}
 			FROM nhgis_pop_race_norm_90_10 
-			WHERE CW7AA{} <> '' AND CW7AA{} > 0 AND STATE <> 'Puerto Rico'
+			WHERE CW7AA{} <> '' AND CW7AA{} > 0 AND STATE NOT IN ('Puerto Rico', 'District Of Columbia', 'Alaska', 'Hawaii')
 			;
 			'''.format(y,y,y,y,y,y,y,y,y,y,y,y)
 
