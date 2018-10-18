@@ -71,7 +71,7 @@ df['zeros'] = 0
 # U = df['ppctchg_0010']
 # V = df['S_us_diff_0010']
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(12,8))
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, sharey=False, figsize=(12,8))
 
 regions = df['region'].unique()
 regions = sorted(regions)
@@ -87,12 +87,17 @@ for a, x in zip(axli,regions):
 	U = temp['ppctchg_0010']
 	V = temp['S_us_diff_0010']
 
-	temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#e41a1c'
-	temp.loc[temp['growth_cat']=='growing', 'color'] = '#4daf4a'
-	temp.loc[temp['growth_cat']=='stable', 'color'] = '#377eb8'
+	# temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#4575b4'
+	# temp.loc[temp['growth_cat']=='growing', 'color'] = '#d73027'
 
-	a.quiver(X, Y, U, V, scale_units='xy', angles='xy', scale=1, color=temp['color'], alpha=0.5)
+	temp.loc[temp['growth_cat']=='shrinking', 'color'] = 'blue'
+	temp.loc[temp['growth_cat']=='growing', 'color'] = 'red'
+
+	# temp.loc[temp['growth_cat']=='stable', 'color'] = 'red'
+
+	a.quiver(X, Y, U, V, scale_units='xy', angles='xy', scale=1, color=temp['color'], alpha=0.5, width=0.003)
 	a.set_xlim([-50,120])
+	a.set_ylim([0,1])
 	a.set_title(x)
 
 for a in [ax3, ax4]:

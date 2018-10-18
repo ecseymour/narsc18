@@ -1,0 +1,260 @@
+---
+title: "narsc_regression_analysis"
+author: "eric"
+date: "October 18, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+# load packages
+library(lmtest)
+library(sandwich)
+library(stargazer)
+library(dplyr)
+library(ggplot2)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+# read data
+data <- read.csv('/home/eric/Documents/franklin/narsc2018/generated_data/diversity_regression_data.csv',
+  header = TRUE, sep = ",")
+# convert dummy vars to factors
+data$STATE <- factor(data$STATE)
+data$region <- factor(data$region)
+data$metro_status00 <- factor(data$metro_status00)
+data$metro_status90 <- factor(data$metro_status90)
+data$loss_dummy_9000 <- factor(data$loss_dummy_9000)
+data$loss_dummy_0010 <- factor(data$loss_dummy_0010)
+```
+
+## specialization 2000-2010
+
+```{r, results='asis'}
+# exec models
+m1 <- lm('specialization_diff_0010 ~ ppctchg_0010' , data=data)
+
+m2 <- lm('specialization_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
+
+m3 <- lm('specialization_diff_0010 ~ loss_dummy_0010' , data=data)
+
+m4 <- lm('specialization_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+
+# calc robust se 
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
+
+cov3 <- vcovHC(m3, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m4, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+stargazer(m1, m2, m3, m4,
+          type = 'html', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          # omit.labels = c("STATE"),
+          add.lines = list(c("States", "no", "yes", "no", "yes")),
+          dep.var.labels = 'specialization 2010-2000')
+```
+
+## specialization 1990-2000
+
+```{r, results='asis'}
+# exec models
+m1 <- lm('specialization_diff_9000 ~ ppctchg_9000' , data=data)
+
+m2 <- lm('specialization_diff_9000 ~ ppctchg_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data) 
+
+m3 <- lm('specialization_diff_9000 ~ loss_dummy_9000' , data=data)
+
+m4 <- lm('specialization_diff_9000 ~ loss_dummy_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data)
+
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
+
+cov3 <- vcovHC(m3, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m4, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+stargazer(m1, m2, m3, m4,
+          type = 'html', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          # omit.labels = c("STATE"),
+          add.lines = list(c("States", "no", "yes", "no", "yes")),
+          dep.var.labels = 'specialization 2000-1990')
+```
+
+## diversity 2000-2010
+
+```{r, results='asis'}
+# exec models
+m1 <- lm('diversity_diff_0010 ~ ppctchg_0010' , data=data)
+
+m2 <- lm('diversity_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
+
+m3 <- lm('diversity_diff_0010 ~ loss_dummy_0010' , data=data)
+
+m4 <- lm('diversity_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
+
+cov3 <- vcovHC(m3, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m4, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+stargazer(m1, m2, m3, m4,
+          type = 'html', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          # omit.labels = c("STATE"),
+          add.lines = list(c("States", "no", "yes", "no", "yes")),
+          dep.var.labels = 'diversity 2010-2000')
+```
+
+## diversity 1990-2000
+
+```{r, results='asis'}
+# exec models
+m1 <- lm('diversity_diff_9000 ~ ppctchg_9000' , data=data)
+
+m2 <- lm('diversity_diff_9000 ~ ppctchg_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data) 
+
+m3 <- lm('diversity_diff_9000 ~ loss_dummy_9000' , data=data)
+
+m4 <- lm('diversity_diff_9000 ~ loss_dummy_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data)
+
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
+
+cov3 <- vcovHC(m3, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m4, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+stargazer(m1, m2, m3, m4,
+          type = 'html', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          # omit.labels = c("STATE"),
+          add.lines = list(c("States", "no", "yes", "no", "yes")),
+          dep.var.labels = 'diversity 2000-1990')
+```
+
+## gini 2000-2010
+
+```{r, results='asis'}
+# exec models
+m1 <- lm('gini_diff_0010 ~ ppctchg_0010' , data=data)
+
+m2 <- lm('gini_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
+
+m2.2 <- lm('gini_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data) 
+
+m3 <- lm('gini_diff_0010 ~ loss_dummy_0010' , data=data)
+
+m4 <- lm('gini_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+
+m4.2 <- lm('gini_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data)
+
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
+
+cov2.2 <- vcovHC(m2.2, type = "HC3")
+robust_se2.2 <- sqrt(diag(cov2.2))
+
+cov3 <- vcovHC(m3, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m4, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+cov4.2 <- vcovHC(m4.2, type = "HC3")
+robust_se4.2 <- sqrt(diag(cov4.2))
+
+stargazer(m1, m2, m2.2, m3, m4, m4.2,
+          type = 'html', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4, robust_se4.2),
+          # omit.labels = c("STATE"),
+          add.lines = list(c("States", "no", "yes", "yes", "no", "yes", "yes")),
+          dep.var.labels = 'gini 2010-2000')
+```
+
+## gini 1990-2000
+
+```{r, results='asis'}
+# exec models
+m1 <- lm('gini_diff_9000 ~ ppctchg_9000' , data=data)
+
+m2 <- lm('gini_diff_9000 ~ ppctchg_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data) 
+
+m2.2 <- lm('gini_diff_9000 ~ ppctchg_9000 + STATE + metro_status90 + pwhite_90 + log(pop90) + gini_90' , data=data) 
+
+m3 <- lm('gini_diff_9000 ~ loss_dummy_9000' , data=data)
+
+m4 <- lm('gini_diff_9000 ~ loss_dummy_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data)
+
+m4.2 <- lm('gini_diff_9000 ~ loss_dummy_9000 + STATE + metro_status90 + pwhite_90 + log(pop90) + gini_90' , data=data)
+
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
+
+cov2.2 <- vcovHC(m2.2, type = "HC3")
+robust_se2.2 <- sqrt(diag(cov2.2))
+
+cov3 <- vcovHC(m3, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m4, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+cov4.2 <- vcovHC(m4.2, type = "HC3")
+robust_se4.2 <- sqrt(diag(cov4.2))
+
+stargazer(m1, m2, m2.2, m3, m4, m4.2,
+          type = 'html', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4, robust_se4.2),
+          # omit.labels = c("STATE"),
+          add.lines = list(c("States", "no", "yes", "yes", "no", "yes", "yes")),
+          dep.var.labels = 'gini 2000-1990')
+```
+

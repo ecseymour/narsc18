@@ -1,0 +1,35 @@
+## models and tables
+
+Tables: m1...m4
+PDF OK
+
+DVs: GINI, Specialization, Diversity
+1. pop change
+2. dummy decline
+3. states (and/or regions)
+4. base pop, pct white
+5. __metro county base year (or base)__ % pct urban
+6. Near or far from metro area?
+
+std err and ***
+
+Diversity AND Spec ALL Periods
+
+F-test: regions add on top of states
+stepwise
+determine if state and region or just state
+
+Two time periods
+
+Moran's I
+
+## plots and maps
+
+* recolor vectors to match maps
+* also include GINI and diversity
+* add ytick labels all plots
+* make maps showing level and change in DVs
+* both time periods for all three
+
+
+for each region, share that has increased or decreased in each variable in each period
