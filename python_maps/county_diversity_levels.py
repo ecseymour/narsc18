@@ -139,10 +139,11 @@ for v in ['specialization', 'gini', 'diversity']:
 		mylabels = ['{} < 0.00'.format(df['{}_diff_{}{}'.format(v,start,end)].min().round(2)), 
 			'0.00 - 0.05',
 			'0.05 - 0.10', 
-			'0.1 - {}'.format(df['{}_diff_{}{}'.format(v,start,end)].max().round(2))]
+			'0.10 - {}'.format(df['{}_diff_{}{}'.format(v,start,end)].max().round(2))]
 		# print y
-		cmap = ['#d73027', '#e0f3f8', '#91bfdb', '#4575b4']
-		cmap = LinearSegmentedColormap.from_list('mycmap', cmap)
+		# cmap = ['#d73027', '#e0f3f8', '#91bfdb', '#4575b4']
+		cmap = LinearSegmentedColormap.from_list('mycmap', list(reversed(['#d73027', '#fc8d59', '#fee090', '#4575b4'])) )
+		# cmap = LinearSegmentedColormap.from_list('mycmap', cmap)
 		# ax=df.plot(column='{}_diff_{}{}'.format(v,start,end), linewidth=.1, edgecolor='white', legend=True, categorical=False, scheme='Fisher_Jenks')
 		print df.groupby('specialization_breaks_{}{}'.format(start, end)).size()
 		ax=plot_dataframe_custom(df, column='specialization_breaks_{}{}'.format(start,end), linewidth=.1, edgecolor='white', 
