@@ -45,7 +45,7 @@ SELECT A.gisjoin, B.name AS region
 FROM us_county_2010 AS A, census_regions_10 AS B
 WHERE ST_Contains(B.geometry, ST_Centroid(A.geometry))
 AND A.ROWID IN (SELECT ROWID FROM SpatialIndex
-    WHERE f_table_name = 'us_county_2010' AND search_frame = B.geometry )
+	WHERE f_table_name = 'us_county_2010' AND search_frame = B.geometry )
 ;
 '''
 
@@ -73,10 +73,10 @@ periods = [ ['90', '00'], ['00', '10'] ]
 benchmarks = ['us', 'state']
 
 for p in periods:
-    start = p[0]
-    end = p[1]
-    for b in benchmarks:
-        df['S_{}_diff_{}{}'.format(b,start,end)] = df['S{}_{}'.format(b, end)] - df['S{}_{}'.format(b, start)]
+	start = p[0]
+	end = p[1]
+	for b in benchmarks:
+		df['S_{}_diff_{}{}'.format(b,start,end)] = df['S{}_{}'.format(b, end)] - df['S{}_{}'.format(b, start)]
 ###################################################################################33
 # df = df.dfle(n=250)
 df['zeros'] = 0
@@ -85,6 +85,9 @@ df['zeros'] = 0
 # U = df['ppctchg_0010']
 # V = df['S_us_diff_0010']
 
+
+def get_axis_limits(ax, scale=.9):
+	return ax.get_xlim()[1]*scale, ax.get_ylim()[1]*scale
 
 myvars = ['gini', 'specialization', 'diversity']
 regions = df['region'].unique()
@@ -99,20 +102,31 @@ for v in myvars:
 
 	for a, x in zip(axli,regions):
 
-		temp = df.loc[(df['region']==x) & (df['growth_cat'] != 'stable')]
+		temp = df.loc[(df['region']==x) & (df['growth_cat'] != 'stable')]		
 
+		# calc chare that increased or decrease in each region
+		temp2 = df.loc[df['region']==x]
+		pct_increase_growth = None
+		pct_increase_loss = None
+		
 		X = temp['zeros']
 		U = temp['ppctchg_0010']
 
 		if v == 'specialization':
 			Y = temp['Sus_00']
 			V = temp['S_us_diff_0010']
+			pct_increase_growth = len(temp2.loc[(temp2['Sus_10'] > temp2['Sus_00']) & (temp2['ppctchg_0010'] >= 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_0010']>=0]) * 100
+			pct_increase_loss = len(temp2.loc[(temp2['Sus_10'] > temp2['Sus_00']) & (temp2['ppctchg_0010'] < 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_0010']<0]) * 100
 		elif v =='gini':
 			Y = temp['gini_00']
 			V = temp['gini_10'] - temp['gini_00']
+			pct_increase_growth = len(temp2.loc[(temp2['gini_10'] > temp2['gini_00']) & (temp2['ppctchg_0010'] >= 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_0010']>=0]) * 100
+			pct_increase_loss = len(temp2.loc[(temp2['gini_10'] > temp2['gini_00']) & (temp2['ppctchg_0010'] < 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_0010']<0]) * 100
 		elif v =='diversity':
 			Y = temp['diversity_4grp_00'] / np.log(4)
 			V = (temp['diversity_4grp_10'] / np.log(4)) - (temp['diversity_4grp_00'] / np.log(4))
+			pct_increase_growth = len(temp2.loc[(temp2['diversity_4grp_10'] > temp2['diversity_4grp_00']) & (temp2['ppctchg_0010'] >= 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_0010']>=0]) * 100
+			pct_increase_loss = len(temp2.loc[(temp2['diversity_4grp_10'] > temp2['diversity_4grp_00']) & (temp2['ppctchg_0010'] < 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_0010']<0]) * 100
 
 		temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#5e3c99'
 		temp.loc[temp['growth_cat']=='growing', 'color'] = '#e66101'
@@ -123,7 +137,9 @@ for v in myvars:
 		a.set_xlim([-50,120])
 		a.set_ylim([0,1])
 		a.set_title(x)
-
+		# a.annotate('increase counties: {}%'.format(round(pct_increase,0)), xy=get_axis_limits(a))
+		a.annotate('growth w/ increase: {}%\nloss w/ increase: {}%'.format(round(pct_increase_growth,0), round(pct_increase_loss,0)), xy=(40,.9))
+	
 	for a in [ax3, ax4]:
 		a.set_xlabel('% pop change 2000-2010')
 	for a in [ax1,ax3]:
