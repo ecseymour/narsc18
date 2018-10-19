@@ -90,8 +90,8 @@ for a, x in zip(axli,regions):
 	# temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#4575b4'
 	# temp.loc[temp['growth_cat']=='growing', 'color'] = '#d73027'
 
-	temp.loc[temp['growth_cat']=='shrinking', 'color'] = 'blue'
-	temp.loc[temp['growth_cat']=='growing', 'color'] = 'red'
+	temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#5e3c99'
+	temp.loc[temp['growth_cat']=='growing', 'color'] = '#e66101'
 
 	# temp.loc[temp['growth_cat']=='stable', 'color'] = 'red'
 
