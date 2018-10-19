@@ -85,38 +85,49 @@ df['zeros'] = 0
 # U = df['ppctchg_0010']
 # V = df['S_us_diff_0010']
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, sharey=False, figsize=(12,8))
 
+myvars = ['gini', 'specialization', 'diversity']
 regions = df['region'].unique()
 regions = sorted(regions)
 print regions
-axli = [ax1, ax2, ax3, ax4]
 
-for a, x in zip(axli,regions):
+for v in myvars:
+	print v
 
-	temp = df.loc[(df['region']==x) & (df['growth_cat'] != 'stable')]
+	fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, sharey=False, figsize=(12,8))
+	axli = [ax1, ax2, ax3, ax4]
 
-	X = temp['zeros']
-	Y = temp['Sus_00']
-	U = temp['ppctchg_0010']
-	V = temp['S_us_diff_0010']
+	for a, x in zip(axli,regions):
 
-	# temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#4575b4'
-	# temp.loc[temp['growth_cat']=='growing', 'color'] = '#d73027'
+		temp = df.loc[(df['region']==x) & (df['growth_cat'] != 'stable')]
 
-	temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#5e3c99'
-	temp.loc[temp['growth_cat']=='growing', 'color'] = '#e66101'
+		X = temp['zeros']
+		U = temp['ppctchg_0010']
 
-	# temp.loc[temp['growth_cat']=='stable', 'color'] = 'red'
+		if v == 'specialization':
+			Y = temp['Sus_00']
+			V = temp['S_us_diff_0010']
+		elif v =='gini':
+			Y = temp['gini_00']
+			V = temp['gini_10'] - temp['gini_00']
+		elif v =='diversity':
+			Y = temp['diversity_4grp_00'] / np.log(4)
+			V = (temp['diversity_4grp_10'] / np.log(4)) - (temp['diversity_4grp_00'] / np.log(4))
 
-	a.quiver(X, Y, U, V, scale_units='xy', angles='xy', scale=1, color=temp['color'], alpha=0.5, width=0.003)
-	a.set_xlim([-50,120])
-	a.set_ylim([0,1])
-	a.set_title(x)
+		temp.loc[temp['growth_cat']=='shrinking', 'color'] = '#5e3c99'
+		temp.loc[temp['growth_cat']=='growing', 'color'] = '#e66101'
 
-for a in [ax3, ax4]:
-	a.set_xlabel('% pop change 2000-2010')
-for a in [ax1,ax3]:
-	a.set_ylabel('specialization')
+		# temp.loc[temp['growth_cat']=='stable', 'color'] = 'red'
 
-plt.savefig("/home/eric/Documents/franklin/narsc2018/figures/specialization_quiver.png", dpi=300, bbox_inches='tight')
+		a.quiver(X, Y, U, V, scale_units='xy', angles='xy', scale=1, color=temp['color'], alpha=0.5, width=0.003)
+		a.set_xlim([-50,120])
+		a.set_ylim([0,1])
+		a.set_title(x)
+
+	for a in [ax3, ax4]:
+		a.set_xlabel('% pop change 2000-2010')
+	for a in [ax1,ax3]:
+		a.set_ylabel(v)
+
+	plt.savefig("/home/eric/Documents/franklin/narsc2018/figures/{}_quiver.png".format(v), dpi=300, bbox_inches='tight')
+	plt.close()
