@@ -62,7 +62,6 @@ outFile = "/home/eric/Documents/franklin/narsc2018/figures/diversity_map.png"
 plt.savefig(outFile)
 plt.close()
 #######################################################################
-# categorize change in Gini
 # simple binary: increase or decrease
 # df['chgcat'] = None
 df.loc[df['diversity_diff_0010'] < 0, 'chgcat'] = 'decrease' 

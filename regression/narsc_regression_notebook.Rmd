@@ -20,11 +20,11 @@ library(dplyr)
 library(ggplot2)
 ```
 
-## R Markdown
+<!-- ## R Markdown -->
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+<!-- This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this: -->
 
 ```{r}
 # read data
@@ -41,7 +41,9 @@ data$loss_dummy_0010 <- factor(data$loss_dummy_0010)
 
 ## specialization 2000-2010
 
-```{r, results='asis'}
+All models below show results of bivariate regression and models with basic control variables. All models with controls include state fixed effects. Regions are collinear with states and dropped from the models by R during regression, so they are excluded from the models below.
+
+```{r}
 # exec models
 m1 <- lm('specialization_diff_0010 ~ ppctchg_0010' , data=data)
 
@@ -65,7 +67,7 @@ cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
 stargazer(m1, m2, m3, m4,
-          type = 'html', 
+          type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
           se = list(robust_se1, robust_se2, robust_se3, robust_se4),
           # omit.labels = c("STATE"),
@@ -73,9 +75,22 @@ stargazer(m1, m2, m3, m4,
           dep.var.labels = 'specialization 2010-2000')
 ```
 
+__Interpretation__
+
+Model 2 indicates a 10 percentage point increase in population is associated with a 0.003 lower specialization value in 2010 compared to 2000, all else being equal. Specialization is an index ranging between 0 and 1 in both periods. This value of -0.003 (10 * -0.0003) does not necessarily indicate a negative difference in specialization values between 2000 and 2010; that would depend on the values taken for the other control variables. For the average growing county, population growth is linked to a smaller increase in specialization compared to places with less growth, not an actual decline in specialization. Conversely, a 10 percentage point population decrease is associated with a 0.003 higher specialization value in 2010. This small difference reflects the small changes between 1990-2000 in specialization (and diversity). The dummy variable for loss in Model 4 indicates switching from a growth county to a loss county is associated with a 0.004 higher specialization value in 2010, all else being equal. The plot below shows the range of values for the difference in specialization against percent change in population.
+
+```{r}
+# plot change in diversity against change in pop. for all tracts
+data %>%
+  ggplot(aes(y = specialization_diff_0010, x = ppctchg_0010)) +
+  geom_point() + 
+  geom_smooth(method = "lm", fill = NA)
+```
+
+
 ## specialization 1990-2000
 
-```{r, results='asis'}
+```{r}
 # exec models
 m1 <- lm('specialization_diff_9000 ~ ppctchg_9000' , data=data)
 
@@ -98,7 +113,7 @@ cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
 stargazer(m1, m2, m3, m4,
-          type = 'html', 
+          type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
           se = list(robust_se1, robust_se2, robust_se3, robust_se4),
           # omit.labels = c("STATE"),
@@ -108,7 +123,7 @@ stargazer(m1, m2, m3, m4,
 
 ## diversity 2000-2010
 
-```{r, results='asis'}
+```{r}
 # exec models
 m1 <- lm('diversity_diff_0010 ~ ppctchg_0010' , data=data)
 
@@ -131,7 +146,7 @@ cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
 stargazer(m1, m2, m3, m4,
-          type = 'html', 
+          type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
           se = list(robust_se1, robust_se2, robust_se3, robust_se4),
           # omit.labels = c("STATE"),
@@ -141,7 +156,7 @@ stargazer(m1, m2, m3, m4,
 
 ## diversity 1990-2000
 
-```{r, results='asis'}
+```{r}
 # exec models
 m1 <- lm('diversity_diff_9000 ~ ppctchg_9000' , data=data)
 
@@ -164,7 +179,7 @@ cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
 stargazer(m1, m2, m3, m4,
-          type = 'html', 
+          type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
           se = list(robust_se1, robust_se2, robust_se3, robust_se4),
           # omit.labels = c("STATE"),
@@ -174,7 +189,7 @@ stargazer(m1, m2, m3, m4,
 
 ## gini 2000-2010
 
-```{r, results='asis'}
+```{r}
 # exec models
 m1 <- lm('gini_diff_0010 ~ ppctchg_0010' , data=data)
 
@@ -207,7 +222,7 @@ cov4.2 <- vcovHC(m4.2, type = "HC3")
 robust_se4.2 <- sqrt(diag(cov4.2))
 
 stargazer(m1, m2, m2.2, m3, m4, m4.2,
-          type = 'html', 
+          type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
           se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4, robust_se4.2),
           # omit.labels = c("STATE"),
@@ -217,7 +232,7 @@ stargazer(m1, m2, m2.2, m3, m4, m4.2,
 
 ## gini 1990-2000
 
-```{r, results='asis'}
+```{r}
 # exec models
 m1 <- lm('gini_diff_9000 ~ ppctchg_9000' , data=data)
 
@@ -250,7 +265,7 @@ cov4.2 <- vcovHC(m4.2, type = "HC3")
 robust_se4.2 <- sqrt(diag(cov4.2))
 
 stargazer(m1, m2, m2.2, m3, m4, m4.2,
-          type = 'html', 
+          type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
           se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4, robust_se4.2),
           # omit.labels = c("STATE"),

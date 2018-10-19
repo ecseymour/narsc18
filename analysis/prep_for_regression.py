@@ -137,6 +137,14 @@ df = pd.merge(df, df3, left_index=True, right_index=True)
 # code variables for regression
 # calc pop change in each decade
 # calc diff in specialization and diversity
+
+print df['diversity_4grp_10'].describe()
+# scale diversity scores
+for x in ['90', '00', '10']:
+	df['diversity_4grp_{}'.format(x)] = df['diversity_4grp_{}'.format(x)] / np.log(4)
+print df['diversity_4grp_10'].describe()
+
+
 periods = [ ['90', '00'], ['00', '10'] ]
 
 for p in periods:
