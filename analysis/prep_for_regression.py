@@ -76,7 +76,9 @@ C.diversity_4grp_00,
 C.diversity_4grp_90,
 D.gini_10,
 D.gini_00,
-D.gini_90
+D.gini_90,
+E.code1993,
+E.code2003
 FROM nhgis_pop_race_norm_90_10 AS A
 JOIN county_specialization AS B
 	ON A.GISJOIN = B.GISJOIN
@@ -84,6 +86,8 @@ JOIN county_diversity AS C
 	ON A.GISJOIN = C.GISJOIN
 JOIN county_gini AS D
 	ON A.GISJOIN = D.GISJOIN
+JOIN usda_rural_urban AS E
+	ON E.fips = A.STATEA || A.COUNTYA
 ;
 '''
 df = pd.read_sql(qry, con, index_col='GISJOIN')

@@ -7,6 +7,7 @@ output:
   pdf_document: default
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -35,19 +36,23 @@ data$STATE <- factor(data$STATE)
 data$region <- factor(data$region)
 data$metro_status00 <- factor(data$metro_status00)
 data$metro_status90 <- factor(data$metro_status90)
+data$code1993 <- factor(data$code1993)
+data$code2003 <- factor(data$code2003)
 data$loss_dummy_9000 <- factor(data$loss_dummy_9000)
 data$loss_dummy_0010 <- factor(data$loss_dummy_0010)
 ```
 
 ## specialization 2000-2010
 
-All models below show results of bivariate regression and models with basic control variables. All models with controls include state fixed effects. Regions are collinear with states and dropped from the models by R during regression, so they are excluded from the models below.
+All models below show results of bivariate regression and models with basic control variables. All models with controls include state fixed effects. Regions are collinear with states and dropped from the models by R during regression, so they are excluded from the models below. I include a dummy for metro status, i.e., whether a county was part of a metropolitan area in the base year, derived from a historical vintages of metro area shapefiles from NHGIS. As an alternative, I also used USDA rural-urban continuum codes for 1993 and 2003. These codes are derived from county population and relationship to a metro area, e.g., inside, adjacent, not-adjacent. I included each level of the continuum as a dummy with counties in metro areas of 1 million population or more as the reference category. I removed the dummy for metro status and base year population when included these dummies. The models with the two variables for metro status and base year population generally performed better, e.g., higher R^2 with fewer variables. But the coefficent for pop change remains the same in either model. Metro status is not significant for specialization, regardless of control variable selection.
 
 ```{r}
 # exec models
 m1 <- lm('specialization_diff_0010 ~ ppctchg_0010' , data=data)
 
 m2 <- lm('specialization_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
+
+m2.2 <- lm('specialization_diff_0010 ~ ppctchg_0010 + STATE + code2003 + pwhite_00' , data=data) 
 
 m3 <- lm('specialization_diff_0010 ~ loss_dummy_0010' , data=data)
 
@@ -60,18 +65,21 @@ robust_se1 <- sqrt(diag(cov1))
 cov2 <- vcovHC(m2, type = "HC3")
 robust_se2 <- sqrt(diag(cov2))
 
+cov2.2 <- vcovHC(m2.2, type = "HC3")
+robust_se2.2 <- sqrt(diag(cov2.2))
+
 cov3 <- vcovHC(m3, type = "HC3")
 robust_se3 <- sqrt(diag(cov3))
 
 cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
-stargazer(m1, m2, m3, m4,
+stargazer(m1, m2, m2.2, m3, m4,
           type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
-          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4),
           # omit.labels = c("STATE"),
-          add.lines = list(c("States", "no", "yes", "no", "yes")),
+          add.lines = list(c("States", "no", "yes", "yes", "no", "yes")),
           dep.var.labels = 'specialization 2010-2000')
 ```
 
@@ -129,6 +137,8 @@ m1 <- lm('diversity_diff_0010 ~ ppctchg_0010' , data=data)
 
 m2 <- lm('diversity_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
 
+m2.2 <- lm('diversity_diff_0010 ~ ppctchg_0010 + STATE + code2003 + pwhite_00' , data=data) 
+
 m3 <- lm('diversity_diff_0010 ~ loss_dummy_0010' , data=data)
 
 m4 <- lm('diversity_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
@@ -139,18 +149,21 @@ robust_se1 <- sqrt(diag(cov1))
 cov2 <- vcovHC(m2, type = "HC3")
 robust_se2 <- sqrt(diag(cov2))
 
+cov2.2 <- vcovHC(m2.2, type = "HC3")
+robust_se2.2 <- sqrt(diag(cov2.2))
+
 cov3 <- vcovHC(m3, type = "HC3")
 robust_se3 <- sqrt(diag(cov3))
 
 cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
-stargazer(m1, m2, m3, m4,
+stargazer(m1, m2, m2.2, m3, m4,
           type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
-          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4),
           # omit.labels = c("STATE"),
-          add.lines = list(c("States", "no", "yes", "no", "yes")),
+          add.lines = list(c("States", "no", "yes", "yes", "no", "yes")),
           dep.var.labels = 'diversity 2010-2000')
 ```
 

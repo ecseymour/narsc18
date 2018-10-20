@@ -143,15 +143,19 @@ data$STATE &lt;- factor(data$STATE)
 data$region &lt;- factor(data$region)
 data$metro_status00 &lt;- factor(data$metro_status00)
 data$metro_status90 &lt;- factor(data$metro_status90)
+data$code1993 &lt;- factor(data$code1993)
+data$code2003 &lt;- factor(data$code2003)
 data$loss_dummy_9000 &lt;- factor(data$loss_dummy_9000)
 data$loss_dummy_0010 &lt;- factor(data$loss_dummy_0010)</code></pre>
 <div id="specialization-2000-2010" class="section level2">
 <h2>specialization 2000-2010</h2>
-<p>All models below show results of bivariate regression and models with basic control variables. All models with controls include state fixed effects. Regions are collinear with states and dropped from the models by R during regression, so they are excluded from the models below.</p>
+<p>All models below show results of bivariate regression and models with basic control variables. All models with controls include state fixed effects. Regions are collinear with states and dropped from the models by R during regression, so they are excluded from the models below. I include a dummy for metro status, i.e., whether a county was part of a metropolitan area in the base year, derived from a historical vintages of metro area shapefiles from NHGIS. As an alternative, I also used USDA rural-urban continuum codes for 1993 and 2003. These codes are derived from county population and relationship to a metro area, e.g., inside, adjacent, not-adjacent. I included each level of the continuum as a dummy with counties in metro areas of 1 million population or more as the reference category. I removed the dummy for metro status and base year population when included these dummies. The models with the two variables for metro status and base year population generally performed better, e.g., higher R^2 with fewer variables. But the coefficent for pop change remains the same in either model. Metro status is not significant for specialization, regardless of control variable selection.</p>
 <pre class="r"><code># exec models
 m1 &lt;- lm('specialization_diff_0010 ~ ppctchg_0010' , data=data)
 
 m2 &lt;- lm('specialization_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
+
+m2.2 &lt;- lm('specialization_diff_0010 ~ ppctchg_0010 + STATE + code2003 + pwhite_00' , data=data) 
 
 m3 &lt;- lm('specialization_diff_0010 ~ loss_dummy_0010' , data=data)
 
@@ -164,51 +168,78 @@ robust_se1 &lt;- sqrt(diag(cov1))
 cov2 &lt;- vcovHC(m2, type = &quot;HC3&quot;)
 robust_se2 &lt;- sqrt(diag(cov2))
 
+cov2.2 &lt;- vcovHC(m2.2, type = &quot;HC3&quot;)
+robust_se2.2 &lt;- sqrt(diag(cov2.2))
+
 cov3 &lt;- vcovHC(m3, type = &quot;HC3&quot;)
 robust_se3 &lt;- sqrt(diag(cov3))
 
 cov4 &lt;- vcovHC(m4, type = &quot;HC3&quot;)
 robust_se4 &lt;- sqrt(diag(cov4))
 
-stargazer(m1, m2, m3, m4,
+stargazer(m1, m2, m2.2, m3, m4,
           type='text', 
           omit = c('STATE'), omit.stat = c(&quot;f&quot;, &quot;ser&quot;),
-          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4),
           # omit.labels = c(&quot;STATE&quot;),
-          add.lines = list(c(&quot;States&quot;, &quot;no&quot;, &quot;yes&quot;, &quot;no&quot;, &quot;yes&quot;)),
+          add.lines = list(c(&quot;States&quot;, &quot;no&quot;, &quot;yes&quot;, &quot;yes&quot;, &quot;no&quot;, &quot;yes&quot;)),
           dep.var.labels = 'specialization 2010-2000')</code></pre>
 <pre><code>## 
-## =========================================================
-##                            Dependent variable:           
-##                  ----------------------------------------
-##                          specialization 2010-2000        
-##                     (1)        (2)       (3)       (4)   
-## ---------------------------------------------------------
-## ppctchg_0010     -0.0004*** -0.0003***                   
-##                   (0.0001)   (0.0001)                    
-##                                                          
-## metro_status001               -0.001             -0.002  
-##                              (0.001)             (0.001) 
-##                                                          
-## pwhite_00                    0.049***           0.047*** 
-##                              (0.004)             (0.004) 
-##                                                          
-## log(pop00)                   -0.001**           -0.002***
-##                              (0.001)             (0.001) 
-##                                                          
-## loss_dummy_00101                       0.008*** 0.004*** 
-##                                        (0.001)   (0.001) 
-##                                                          
-## Constant          0.027***    -0.001   0.022***   0.002  
-##                   (0.001)    (0.008)   (0.001)   (0.008) 
-##                                                          
-## ---------------------------------------------------------
-## States               no        yes        no       yes   
-## Observations       3,105      3,105     3,105     3,105  
-## R2                 0.039      0.264     0.021     0.257  
-## Adjusted R2        0.038      0.251     0.021     0.245  
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+## ====================================================================
+##                                  Dependent variable:                
+##                  ---------------------------------------------------
+##                               specialization 2010-2000              
+##                     (1)        (2)        (3)       (4)       (5)   
+## --------------------------------------------------------------------
+## ppctchg_0010     -0.0004*** -0.0003*** -0.0003***                   
+##                   (0.0001)   (0.0001)   (0.0001)                    
+##                                                                     
+## metro_status001               -0.001                        -0.002  
+##                              (0.001)                        (0.001) 
+##                                                                     
+## code20032                                -0.003                     
+##                                         (0.002)                     
+##                                                                     
+## code20033                                0.001                      
+##                                         (0.002)                     
+##                                                                     
+## code20034                                -0.002                     
+##                                         (0.002)                     
+##                                                                     
+## code20035                                0.0001                     
+##                                         (0.003)                     
+##                                                                     
+## code20036                                0.002                      
+##                                         (0.002)                     
+##                                                                     
+## code20037                                0.001                      
+##                                         (0.002)                     
+##                                                                     
+## code20038                                0.003                      
+##                                         (0.002)                     
+##                                                                     
+## code20039                                0.002                      
+##                                         (0.003)                     
+##                                                                     
+## pwhite_00                    0.049***   0.051***           0.047*** 
+##                              (0.004)    (0.004)             (0.004) 
+##                                                                     
+## log(pop00)                   -0.001**                      -0.002***
+##                              (0.001)                        (0.001) 
+##                                                                     
+## loss_dummy_00101                                  0.008*** 0.004*** 
+##                                                   (0.001)   (0.001) 
+##                                                                     
+## Constant          0.027***    -0.001   -0.018***  0.022***   0.002  
+##                   (0.001)    (0.008)    (0.004)   (0.001)   (0.008) 
+##                                                                     
+## --------------------------------------------------------------------
+## States               no        yes        yes        no       yes   
+## Observations       3,105      3,105      3,105     3,105     3,105  
+## R2                 0.039      0.264      0.263     0.021     0.257  
+## Adjusted R2        0.038      0.251      0.249     0.021     0.245  
+## ====================================================================
+## Note:                                    *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
 <p><strong>Interpretation</strong></p>
 <p>Model 2 indicates a 10 percentage point increase in population is associated with a 0.003 lower specialization value in 2010 compared to 2000, all else being equal. Specialization is an index ranging between 0 and 1 in both periods. This value of -0.003 (10 * -0.0003) does not necessarily indicate a negative difference in specialization values between 2000 and 2010; that would depend on the values taken for the other control variables. For the average growing county, population growth is linked to a smaller increase in specialization compared to places with less growth, not an actual decline in specialization. Conversely, a 10 percentage point population decrease is associated with a 0.003 higher specialization value in 2010. This small difference reflects the small changes between 1990-2000 in specialization (and diversity). The dummy variable for loss in Model 4 indicates switching from a growth county to a loss county is associated with a 0.004 higher specialization value in 2010, all else being equal. The plot below shows the range of values for the difference in specialization against percent change in population.</p>
 <pre class="r"><code># plot change in diversity against change in pop. for all tracts
@@ -288,6 +319,8 @@ m1 &lt;- lm('diversity_diff_0010 ~ ppctchg_0010' , data=data)
 
 m2 &lt;- lm('diversity_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
 
+m2.2 &lt;- lm('diversity_diff_0010 ~ ppctchg_0010 + STATE + code2003 + pwhite_00' , data=data) 
+
 m3 &lt;- lm('diversity_diff_0010 ~ loss_dummy_0010' , data=data)
 
 m4 &lt;- lm('diversity_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
@@ -298,51 +331,78 @@ robust_se1 &lt;- sqrt(diag(cov1))
 cov2 &lt;- vcovHC(m2, type = &quot;HC3&quot;)
 robust_se2 &lt;- sqrt(diag(cov2))
 
+cov2.2 &lt;- vcovHC(m2.2, type = &quot;HC3&quot;)
+robust_se2.2 &lt;- sqrt(diag(cov2.2))
+
 cov3 &lt;- vcovHC(m3, type = &quot;HC3&quot;)
 robust_se3 &lt;- sqrt(diag(cov3))
 
 cov4 &lt;- vcovHC(m4, type = &quot;HC3&quot;)
 robust_se4 &lt;- sqrt(diag(cov4))
 
-stargazer(m1, m2, m3, m4,
+stargazer(m1, m2, m2.2, m3, m4,
           type='text', 
           omit = c('STATE'), omit.stat = c(&quot;f&quot;, &quot;ser&quot;),
-          se = list(robust_se1, robust_se2, robust_se3, robust_se4),
+          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4),
           # omit.labels = c(&quot;STATE&quot;),
-          add.lines = list(c(&quot;States&quot;, &quot;no&quot;, &quot;yes&quot;, &quot;no&quot;, &quot;yes&quot;)),
+          add.lines = list(c(&quot;States&quot;, &quot;no&quot;, &quot;yes&quot;, &quot;yes&quot;, &quot;no&quot;, &quot;yes&quot;)),
           dep.var.labels = 'diversity 2010-2000')</code></pre>
 <pre><code>## 
-## =======================================================
-##                           Dependent variable:          
-##                  --------------------------------------
-##                           diversity 2010-2000          
-##                    (1)       (2)       (3)       (4)   
-## -------------------------------------------------------
-## ppctchg_0010     0.001*** 0.001***                     
-##                  (0.0001) (0.0001)                     
-##                                                        
-## metro_status001           0.011***            0.015*** 
-##                            (0.002)             (0.002) 
-##                                                        
-## pwhite_00                 0.074***            0.084*** 
-##                            (0.006)             (0.006) 
-##                                                        
-## log(pop00)                0.007***            0.008*** 
-##                            (0.001)             (0.001) 
-##                                                        
-## loss_dummy_00101                    -0.022*** -0.012***
-##                                      (0.001)   (0.002) 
-##                                                        
-## Constant         0.046*** -0.079*** 0.060***  -0.091***
-##                  (0.001)   (0.013)   (0.001)   (0.013) 
-##                                                        
-## -------------------------------------------------------
-## States              no       yes       no        yes   
-## Observations      3,105     3,105     3,105     3,105  
-## R2                0.132     0.329     0.057     0.297  
-## Adjusted R2       0.132     0.317     0.057     0.286  
-## =======================================================
-## Note:                       *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+## =================================================================
+##                                Dependent variable:               
+##                  ------------------------------------------------
+##                                diversity 2010-2000               
+##                    (1)       (2)       (3)       (4)       (5)   
+## -----------------------------------------------------------------
+## ppctchg_0010     0.001*** 0.001***  0.001***                     
+##                  (0.0001) (0.0001)  (0.0001)                     
+##                                                                  
+## metro_status001           0.011***                      0.015*** 
+##                            (0.002)                       (0.002) 
+##                                                                  
+## code20032                           -0.009***                    
+##                                      (0.003)                     
+##                                                                  
+## code20033                           -0.012***                    
+##                                      (0.003)                     
+##                                                                  
+## code20034                           -0.010***                    
+##                                      (0.004)                     
+##                                                                  
+## code20035                           -0.008**                     
+##                                      (0.004)                     
+##                                                                  
+## code20036                           -0.022***                    
+##                                      (0.003)                     
+##                                                                  
+## code20037                           -0.013***                    
+##                                      (0.004)                     
+##                                                                  
+## code20038                           -0.028***                    
+##                                      (0.004)                     
+##                                                                  
+## code20039                           -0.022***                    
+##                                      (0.004)                     
+##                                                                  
+## pwhite_00                 0.074***  0.065***            0.084*** 
+##                            (0.006)   (0.006)             (0.006) 
+##                                                                  
+## log(pop00)                0.007***                      0.008*** 
+##                            (0.001)                       (0.001) 
+##                                                                  
+## loss_dummy_00101                              -0.022*** -0.012***
+##                                                (0.001)   (0.002) 
+##                                                                  
+## Constant         0.046*** -0.079*** 0.018***  0.060***  -0.091***
+##                  (0.001)   (0.013)   (0.005)   (0.001)   (0.013) 
+##                                                                  
+## -----------------------------------------------------------------
+## States              no       yes       yes       no        yes   
+## Observations      3,105     3,105     3,105     3,105     3,105  
+## R2                0.132     0.329     0.303     0.057     0.297  
+## Adjusted R2       0.132     0.317     0.290     0.057     0.286  
+## =================================================================
+## Note:                                 *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
 </div>
 <div id="diversity-1990-2000" class="section level2">
 <h2>diversity 1990-2000</h2>

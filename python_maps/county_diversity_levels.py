@@ -136,7 +136,7 @@ for v in ['specialization', 'gini', 'diversity']:
 		df.loc[(df['{}_diff_{}{}'.format(v,start, end)]>=0.05) & (df['{}_diff_{}{}'.format(v,start, end)]<0.1), '{}_breaks_{}{}'.format(v,start,end)] = 3 
 		df.loc[(df['{}_diff_{}{}'.format(v,start, end)]>=0.1), '{}_breaks_{}{}'.format(v,start,end)] = 4 
 
-		mylabels = ['{} < 0.00'.format(df['{}_diff_{}{}'.format(v,start,end)].min().round(2)), 
+		mylabels = ['{} - 0.00'.format(df['{}_diff_{}{}'.format(v,start,end)].min().round(2)), 
 			'0.00 - 0.05',
 			'0.05 - 0.10', 
 			'0.10 - {}'.format(df['{}_diff_{}{}'.format(v,start,end)].max().round(2))]
