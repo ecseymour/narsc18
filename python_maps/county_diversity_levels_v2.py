@@ -28,7 +28,7 @@ FROM us_county_2010 AS A JOIN county_diversity AS B
 	ON A.gisjoin = B.gisjoin
 JOIN gz_2010_us_050_00_20m AS C
 	ON A.statefp10 = C.state AND A.countyfp10 = C.county
-JOIN county_specialization AS 
+JOIN county_specialization_4grp AS 
 	D ON A.gisjoin = D.gisjoin
 JOIN county_gini AS E 
 	ON A.gisjoin = E.gisjoin
@@ -67,8 +67,8 @@ for x in ['90', '00', '10']:
 mylabels1 = ['0.0 - 0.2', '0.2 - 0.4', '0.4 - 0.6', '0.6 - 0.8', '0.8 - 1.0']
 mylabels2 = ['0.28 - 0.4', '0.4 - 0.45', '0.45 - 0.50', '0.50 - 0.63']
 
-for v in ['diversity_4grp', 'Sus', 'gini']:
-# for v in ['gini']:
+# for v in ['diversity_4grp', 'Sus', 'gini']:
+for v in ['Sus']:
 	title = 'diversity'
 	mylabels = mylabels1
 	if v == 'Sus':
@@ -117,7 +117,8 @@ for v in ['diversity_4grp', 'Sus', 'gini']:
 ############################################################################
 periods = [ ['90', '00'], ['00', '10'] ]
 
-for v in ['specialization', 'gini', 'diversity']:
+# for v in ['specialization', 'gini', 'diversity']:
+for v in ['specialization']:
 
 	for p in periods:
 		start = p[0]
@@ -168,7 +169,6 @@ for v in ['specialization', 'gini', 'diversity']:
 		leg = ax.get_legend()
 		leg.set_bbox_to_anchor((0., 0.1, 0.2, 0.2))
 
-		title='specialization'
 		outFile = '/home/eric/Documents/franklin/narsc2018/figures/county_{}_diff_{}{}'.format(v, start, end)
 		plt.savefig(outFile, bbox_inches='tight')
 		plt.close()

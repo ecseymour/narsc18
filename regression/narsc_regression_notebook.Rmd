@@ -1,12 +1,15 @@
 ---
 title: "narsc_regression_analysis"
 author: "eric"
-date: "October 18, 2018"
+# date: "October 18, 2018"
 output:
   html_document: default
   pdf_document: default
 ---
 
+All models below show results of bivariate regression and models with basic control variables. Each table shows results including either percent population change ("ppctchg_XXXX") or a dummy indicating loss ("loss_dummyXXXX"). __All models with controls include state fixed effects.__ Regions are collinear with states and dropped from the models by R, so they are excluded from the models below. I include a dummy for metro status, i.e., whether a county was part of a metropolitan area in the base year, derived from a historical vintages of metro area shapefiles from NHGIS. This is "metro_statusXX." As an alternative, I used USDA rural-urban continuum codes for 1993 and 2003. These codes are derived from county population and relationship to a metro area, e.g., inside, adjacent, not-adjacent. I included each level of the continuum as a dummy with counties in metro areas of 1 million population or more as the reference category. These are listed in the results as "code2003X," etc., with the final digit indicating the level of the variable. I removed the dummy for metro status and base year population when including these dummies because they are highly collinear with the USDA classification. The models with the two variables for metro status and base year population generally performed better, e.g., higher R^2 with fewer variables. 
+
+<!-- But the coefficent for pop change remains the same in either model. Metro status is not significant for specialization, regardless of control variable selection.  -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -42,9 +45,8 @@ data$loss_dummy_9000 <- factor(data$loss_dummy_9000)
 data$loss_dummy_0010 <- factor(data$loss_dummy_0010)
 ```
 
-## specialization 2000-2010
 
-All models below show results of bivariate regression and models with basic control variables. All models with controls include state fixed effects. Regions are collinear with states and dropped from the models by R during regression, so they are excluded from the models below. I include a dummy for metro status, i.e., whether a county was part of a metropolitan area in the base year, derived from a historical vintages of metro area shapefiles from NHGIS. As an alternative, I also used USDA rural-urban continuum codes for 1993 and 2003. These codes are derived from county population and relationship to a metro area, e.g., inside, adjacent, not-adjacent. I included each level of the continuum as a dummy with counties in metro areas of 1 million population or more as the reference category. I removed the dummy for metro status and base year population when included these dummies. The models with the two variables for metro status and base year population generally performed better, e.g., higher R^2 with fewer variables. But the coefficent for pop change remains the same in either model. Metro status is not significant for specialization, regardless of control variable selection.
+## specialization 2000-2010
 
 ```{r}
 # exec models
@@ -200,21 +202,76 @@ stargazer(m1, m2, m3, m4,
           dep.var.labels = 'diversity 2000-1990')
 ```
 
+# inequality
+
+The independent variable I had originally been working with was difference in Gini, e.g., t2 - t1. Therfore we would associate percentage point change to the diff between values in t1 and t2. Based on your feedback Monday, I will also add a DV that is each county's difference from the US growth rate across these two periods. I will use percent change, since that is functionally identical to the growth rate between t1 and t2.
+
+```{r}
+# get US Gini values
+us_gini_90 <- 0.4456755
+us_gini_00 <- 0.4628795
+us_gini_125 <- 0.4903698
+
+us_gini_grate_9000 <- (us_gini_00 - us_gini_90) / us_gini_90 * 100
+us_gini_grate_00125 <- (us_gini_125 - us_gini_00) / us_gini_00 * 100
+print("growth rate 1990-2000"); print(us_gini_grate_9000)
+print("growth rate 2000-20125"); print(us_gini_grate_00125)
+```
+
+```{r}
+# gen new vars as diff in growth rate
+data$grate9000 <- (data$gini_00 - data$gini_90) / data$gini_90 * 100
+data$grate00125 <- (data$gini_10 - data$gini_00) / data$gini_00 * 100
+# substract US growth rate from each county's growth rate
+data$grate_diff_9000 <- data$grate9000 - us_gini_grate_9000
+data$grate_diff_00125 <- data$grate00125 - us_gini_125
+```
+
+
+```{r}
+# what is the distribution of values?
+data %>%
+  ggplot(aes(y = grate_diff_00125, x = ppctchg_0010)) +
+  geom_point() + 
+  geom_smooth(method = "lm", fill = NA)
+```
+
+The plot below shows the relationship between the simple difference in Gini and the difference in growth rates (county relative to US). The plot below shows they are nearly identical, though they have __very different scales__. I left the Gini as an index ranging between 0 and 1. 
+
+```{r}
+# how does this new value compare to simple diff?
+# they are nearly identical but on very different scales
+data %>%
+  ggplot(aes(y = grate_diff_00125, x = gini_diff_0010)) +
+  geom_point() + 
+  geom_smooth(method = "lm", fill = NA)
+```
+
+
 ## gini 2000-2010
+
+Run models with simple difference as DV.
+
 
 ```{r}
 # exec models
 m1 <- lm('gini_diff_0010 ~ ppctchg_0010' , data=data)
 
+m1 <- lm('gini_diff_0010 ~ ppctchg_0010' , data=data)
+
 m2 <- lm('gini_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
 
-m2.2 <- lm('gini_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data) 
+m3 <- lm('gini_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data) 
 
-m3 <- lm('gini_diff_0010 ~ loss_dummy_0010' , data=data)
+m4 <- lm('gini_diff_0010 ~ ppctchg_0010 + STATE + pwhite_00 + gini_00 + code2003' , data=data) 
 
-m4 <- lm('gini_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+m5 <- lm('gini_diff_0010 ~ loss_dummy_0010' , data=data)
 
-m4.2 <- lm('gini_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data)
+m6 <- lm('gini_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+
+m7 <- lm('gini_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data)
+
+m8 <- lm('gini_diff_0010 ~ loss_dummy_0010 + STATE + pwhite_00 + gini_00 + code2003' , data=data)
 
 cov1 <- vcovHC(m1, type = "HC3")
 robust_se1 <- sqrt(diag(cov1))
@@ -222,26 +279,89 @@ robust_se1 <- sqrt(diag(cov1))
 cov2 <- vcovHC(m2, type = "HC3")
 robust_se2 <- sqrt(diag(cov2))
 
-cov2.2 <- vcovHC(m2.2, type = "HC3")
-robust_se2.2 <- sqrt(diag(cov2.2))
-
 cov3 <- vcovHC(m3, type = "HC3")
 robust_se3 <- sqrt(diag(cov3))
 
 cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
-cov4.2 <- vcovHC(m4.2, type = "HC3")
-robust_se4.2 <- sqrt(diag(cov4.2))
+cov5 <- vcovHC(m5, type = "HC3")
+robust_se5 <- sqrt(diag(cov5))
 
-stargazer(m1, m2, m2.2, m3, m4, m4.2,
+cov6 <- vcovHC(m6, type = "HC3")
+robust_se6 <- sqrt(diag(cov6))
+
+cov7 <- vcovHC(m7, type = "HC3")
+robust_se7 <- sqrt(diag(cov7))
+
+cov8 <- vcovHC(m8, type = "HC3")
+robust_se8 <- sqrt(diag(cov8))
+
+stargazer(m1, m2, m3, m4, m5, m6, m7, m8,
           type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
-          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4, robust_se4.2),
-          # omit.labels = c("STATE"),
-          add.lines = list(c("States", "no", "yes", "yes", "no", "yes", "yes")),
-          dep.var.labels = 'gini 2010-2000')
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5, robust_se6, robust_se7, robust_se8),
+          dep.var.labels = 'gini diff 2010-2000')
 ```
+
+Note that including starting year Gini makes pop change insignificant in M3, but it again becomes significant when switching out metro status and base pop. for USDA rural-urban codes. The same is true for the dummy variable for loss.
+
+__Change DV to diff in growth rate__
+
+```{r}
+# exec models
+m1 <- lm('grate_diff_00125 ~ ppctchg_0010' , data=data)
+
+m1 <- lm('grate_diff_00125 ~ ppctchg_0010' , data=data)
+
+m2 <- lm('grate_diff_00125 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data) 
+
+m3 <- lm('grate_diff_00125 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data) 
+
+m4 <- lm('grate_diff_00125 ~ ppctchg_0010 + STATE + pwhite_00 + gini_00 + code2003' , data=data) 
+
+m5 <- lm('grate_diff_00125 ~ loss_dummy_0010' , data=data)
+
+m6 <- lm('grate_diff_00125 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+
+m7 <- lm('grate_diff_00125 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00) + gini_00' , data=data)
+
+m8 <- lm('grate_diff_00125 ~ loss_dummy_0010 + STATE + pwhite_00 + gini_00 + code2003' , data=data)
+
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
+
+cov3 <- vcovHC(m2, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m2, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+cov5 <- vcovHC(m5, type = "HC3")
+robust_se5 <- sqrt(diag(cov5))
+
+cov6 <- vcovHC(m6, type = "HC3")
+robust_se6 <- sqrt(diag(cov6))
+
+cov7 <- vcovHC(m6, type = "HC3")
+robust_se7 <- sqrt(diag(cov7))
+
+cov8 <- vcovHC(m8, type = "HC3")
+robust_se8 <- sqrt(diag(cov8))
+
+stargazer(m1, m2, m3, m4, m5, m6, m7, m8,
+          type='text', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5, robust_se6, robust_se7),
+          dep.var.labels = 'gini growth rate diff 2010-2000')
+```
+
+
+__Interpretation:__ M1 indicates a 10 percentage point increase in population is associated with a 0.69 positive difference in county's growth rate relative to the US. Since growth rate is equal to percent increase t1 to t2, this value is equivalent to the percentage point difference between a given county and the U.S. The bivariate model with the dummy for loss indicates switching from growth to loss status is associated with a 1.192 percentage point lower growth rate relative to the U.S. Recall the growth rate fo the US during this period is 5.94. After including controls, the comparable association drops to a 0.49 percentage point difference.
+
 
 ## gini 1990-2000
 
@@ -249,15 +369,21 @@ stargazer(m1, m2, m2.2, m3, m4, m4.2,
 # exec models
 m1 <- lm('gini_diff_9000 ~ ppctchg_9000' , data=data)
 
-m2 <- lm('gini_diff_9000 ~ ppctchg_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data) 
+m1 <- lm('gini_diff_9000 ~ ppctchg_9000' , data=data)
 
-m2.2 <- lm('gini_diff_9000 ~ ppctchg_9000 + STATE + metro_status90 + pwhite_90 + log(pop90) + gini_90' , data=data) 
+m2 <- lm('gini_diff_9000 ~ ppctchg_9000 + STATE + metro_status00 + pwhite_90 + log(pop00)' , data=data) 
 
-m3 <- lm('gini_diff_9000 ~ loss_dummy_9000' , data=data)
+m3 <- lm('gini_diff_9000 ~ ppctchg_9000 + STATE + metro_status00 + pwhite_90 + log(pop00) + gini_90' , data=data) 
 
-m4 <- lm('gini_diff_9000 ~ loss_dummy_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data)
+m4 <- lm('gini_diff_9000 ~ ppctchg_9000 + STATE + pwhite_90 + gini_90 + code1993' , data=data) 
 
-m4.2 <- lm('gini_diff_9000 ~ loss_dummy_9000 + STATE + metro_status90 + pwhite_90 + log(pop90) + gini_90' , data=data)
+m5 <- lm('gini_diff_9000 ~ loss_dummy_9000' , data=data)
+
+m6 <- lm('gini_diff_9000 ~ loss_dummy_9000 + STATE + metro_status00 + pwhite_90 + log(pop00)' , data=data)
+
+m7 <- lm('gini_diff_9000 ~ loss_dummy_9000 + STATE + metro_status00 + pwhite_90 + log(pop00) + gini_90' , data=data)
+
+m8 <- lm('gini_diff_9000 ~ loss_dummy_9000 + STATE + pwhite_90 + gini_90 + code1993' , data=data)
 
 cov1 <- vcovHC(m1, type = "HC3")
 robust_se1 <- sqrt(diag(cov1))
@@ -265,8 +391,69 @@ robust_se1 <- sqrt(diag(cov1))
 cov2 <- vcovHC(m2, type = "HC3")
 robust_se2 <- sqrt(diag(cov2))
 
-cov2.2 <- vcovHC(m2.2, type = "HC3")
-robust_se2.2 <- sqrt(diag(cov2.2))
+cov3 <- vcovHC(m3, type = "HC3")
+robust_se3 <- sqrt(diag(cov3))
+
+cov4 <- vcovHC(m4, type = "HC3")
+robust_se4 <- sqrt(diag(cov4))
+
+cov5 <- vcovHC(m5, type = "HC3")
+robust_se5 <- sqrt(diag(cov5))
+
+cov6 <- vcovHC(m6, type = "HC3")
+robust_se6 <- sqrt(diag(cov6))
+
+cov7 <- vcovHC(m7, type = "HC3")
+robust_se7 <- sqrt(diag(cov7))
+
+cov8 <- vcovHC(m8, type = "HC3")
+robust_se8 <- sqrt(diag(cov8))
+
+stargazer(m1, m2, m3, m4, m5, m6, m7, m8,
+          type='text', 
+          omit = c('STATE'), omit.stat = c("f", "ser"),
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5, robust_se6, robust_se7, robust_se8),
+          dep.var.labels = 'gini diff 2000-1990')
+```
+
+__Interpretation:__ In the 1990-2000 period, pop growth has a negative association with change in Gini after including controls. This is the opposite of results for 2000-2010/2012. The coefficients for the dummy variables also switch signs after including controls. The plot below shows the slope of the line in the bivariate regression plot is shallower in this period. Including controls tips it downward.
+
+
+```{r}
+# plot diff in growth rate 1990-2000 against percent pop change
+data %>%
+  ggplot(aes(y = grate_diff_9000, x = ppctchg_9000)) +
+  geom_point() + 
+  geom_smooth(method = "lm", fill = NA)
+```
+
+__Switch DV__
+
+```{r}
+# exec models
+m1 <- lm('grate_diff_9000 ~ ppctchg_9000' , data=data)
+
+m1 <- lm('grate_diff_9000 ~ ppctchg_9000' , data=data)
+
+m2 <- lm('grate_diff_9000 ~ ppctchg_9000 + STATE + metro_status00 + pwhite_90 + log(pop00)' , data=data) 
+
+m3 <- lm('grate_diff_9000 ~ ppctchg_9000 + STATE + metro_status00 + pwhite_90 + log(pop00) + gini_90' , data=data) 
+
+m4 <- lm('grate_diff_9000 ~ ppctchg_9000 + STATE + pwhite_90 + gini_90 + code1993' , data=data) 
+
+m5 <- lm('grate_diff_9000 ~ loss_dummy_9000' , data=data)
+
+m6 <- lm('grate_diff_9000 ~ loss_dummy_9000 + STATE + metro_status00 + pwhite_90 + log(pop00)' , data=data)
+
+m7 <- lm('grate_diff_9000 ~ loss_dummy_9000 + STATE + metro_status00 + pwhite_90 + log(pop00) + gini_90' , data=data)
+
+m8 <- lm('grate_diff_9000 ~ loss_dummy_9000 + STATE + pwhite_90 + gini_90 + code1993' , data=data)
+
+cov1 <- vcovHC(m1, type = "HC3")
+robust_se1 <- sqrt(diag(cov1))
+
+cov2 <- vcovHC(m2, type = "HC3")
+robust_se2 <- sqrt(diag(cov2))
 
 cov3 <- vcovHC(m3, type = "HC3")
 robust_se3 <- sqrt(diag(cov3))
@@ -274,15 +461,23 @@ robust_se3 <- sqrt(diag(cov3))
 cov4 <- vcovHC(m4, type = "HC3")
 robust_se4 <- sqrt(diag(cov4))
 
-cov4.2 <- vcovHC(m4.2, type = "HC3")
-robust_se4.2 <- sqrt(diag(cov4.2))
+cov5 <- vcovHC(m5, type = "HC3")
+robust_se5 <- sqrt(diag(cov5))
 
-stargazer(m1, m2, m2.2, m3, m4, m4.2,
+cov6 <- vcovHC(m6, type = "HC3")
+robust_se6 <- sqrt(diag(cov6))
+
+cov7 <- vcovHC(m7, type = "HC3")
+robust_se7 <- sqrt(diag(cov7))
+
+cov8 <- vcovHC(m8, type = "HC3")
+robust_se8 <- sqrt(diag(cov8))
+
+stargazer(m1, m2, m3, m4, m5, m6, m7, m8,
           type='text', 
           omit = c('STATE'), omit.stat = c("f", "ser"),
-          se = list(robust_se1, robust_se2, robust_se2.2, robust_se3, robust_se4, robust_se4.2),
-          # omit.labels = c("STATE"),
-          add.lines = list(c("States", "no", "yes", "yes", "no", "yes", "yes")),
-          dep.var.labels = 'gini 2000-1990')
+          se = list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5, robust_se6, robust_se7, robust_se8),
+          dep.var.labels = 'gini growth ratediff 2000-1990')
 ```
 
+We see the same switching of signs with the diff in growth rate DV after including controls.
