@@ -27,7 +27,10 @@ C.diversity_4grp_00,
 C.diversity_4grp_90,
 D.gini_10,
 D.gini_00,
-D.gini_90
+D.gini_90,
+F.povrate_90,
+F.povrate_00,
+F.povrate_10
 FROM nhgis_pop_race_norm_90_10 AS A
 JOIN county_specialization_4grp AS B
 	ON A.GISJOIN = B.GISJOIN
@@ -35,6 +38,8 @@ JOIN county_diversity AS C
 	ON A.GISJOIN = C.GISJOIN
 JOIN county_gini AS D
 	ON A.GISJOIN = D.GISJOIN
+JOIN county_povrate AS F
+   	ON A.GISJOIN = F.GISJOIN
 ;
 '''
 df = pd.read_sql(qry, con, index_col='GISJOIN')
@@ -89,7 +94,7 @@ df['zeros'] = 0
 def get_axis_limits(ax, scale=.9):
 	return ax.get_xlim()[1]*scale, ax.get_ylim()[1]*scale
 
-myvars = ['gini', 'specialization', 'diversity']
+myvars = ['gini', 'specialization', 'diversity', 'povrate', 'pwhite']
 regions = df['region'].unique()
 regions = sorted(regions)
 years = [['90', '00', '9000'], ['00', '10', '0010']]
@@ -126,10 +131,22 @@ for y in years:
 				pct_increase_growth = len(temp2.loc[(temp2['gini_{}'.format(y[1])] > temp2['gini_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] >= 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]>=0]) * 100
 				pct_increase_loss = len(temp2.loc[(temp2['gini_{}'.format(y[1])] > temp2['gini_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] < 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]<0]) * 100
 			elif v =='diversity':
-				Y = temp['diversity_4grp_{}'.format(y[0])] / np.log(4)
-				V = (temp['diversity_4grp_{}'.format(y[1])] / np.log(4)) - (temp['diversity_4grp_{}'.format(y[0])] / np.log(4))
+				Y = temp['diversity_4grp_{}'.format(y[0])]
+				V = (temp['diversity_4grp_{}'.format(y[1])]) - (temp['diversity_4grp_{}'.format(y[0])])
 				pct_increase_growth = len(temp2.loc[(temp2['diversity_4grp_{}'.format(y[1])] > temp2['diversity_4grp_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] >= 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]>=0]) * 100
 				pct_increase_loss = len(temp2.loc[(temp2['diversity_4grp_{}'.format(y[1])] > temp2['diversity_4grp_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] < 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]<0]) * 100
+			elif v =='povrate':
+				Y = temp['povrate_{}'.format(y[0])]
+				V = (temp['povrate_{}'.format(y[1])]) - (temp['povrate_{}'.format(y[0])])
+				pct_increase_growth = len(temp2.loc[(temp2['povrate_{}'.format(y[1])] > temp2['povrate_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] >= 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]>=0]) * 100
+				pct_increase_loss = len(temp2.loc[(temp2['povrate_{}'.format(y[1])] > temp2['povrate_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] < 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]<0]) * 100
+			elif v =='pwhite':
+				Y = temp['pwhite_{}'.format(y[0])]
+				V = (temp['pwhite_{}'.format(y[1])]) - (temp['pwhite_{}'.format(y[0])])
+				pct_increase_growth = len(temp2.loc[(temp2['pwhite_{}'.format(y[1])] > temp2['pwhite_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] >= 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]>=0]) * 100
+				pct_increase_loss = len(temp2.loc[(temp2['pwhite_{}'.format(y[1])] > temp2['pwhite_{}'.format(y[0])]) & (temp2['ppctchg_{}'.format(y[2])] < 0)]) * 1.0 / len(temp2.loc[temp2['ppctchg_{}'.format(y[2])]<0]) * 100
+
+
 
 			temp.loc[temp['growth_cat_{}'.format(y[2])]=='shrinking', 'color'] = '#5e3c99'
 			temp.loc[temp['growth_cat_{}'.format(y[2])]=='growing', 'color'] = '#e66101'

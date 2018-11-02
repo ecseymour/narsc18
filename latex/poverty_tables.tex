@@ -1,0 +1,51 @@
+\documentclass{standalone}
+
+\usepackage{booktabs}
+
+\begin{document}
+
+% \begin{table}[p] \centering 
+%   \caption{OLS regression for change in county poverty} 
+%   \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lcccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{4}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-5} 
+\\[-1.8ex] & \multicolumn{4}{c}{poverty difference} \\ 
+ & 90--00 & 90--00 & 00--10 & 00--10 \\ 
+\hline \\[-1.8ex] 
+ pop. pct. change & $-$0.0003$^{***}$ &  & $-$0.0003$^{***}$ &  \\ 
+  & (0.00003) &  & (0.0001) &  \\ 
+  & & & & \\ 
+ loss dummy &  & 0.008$^{***}$ &  & 0.0004 \\ 
+  &  & (0.001) &  & (0.001) \\ 
+  & & & & \\ 
+ pct. white base yr & $-$0.034$^{***}$ & $-$0.036$^{***}$ & $-$0.004 & $-$0.005 \\ 
+  & (0.004) & (0.004) & (0.005) & (0.005) \\ 
+  & & & & \\ 
+ log(base pop.) & 0.002$^{***}$ & 0.002$^{***}$ & 0.007$^{***}$ & 0.006$^{***}$ \\ 
+  & (0.0005) & (0.0005) & (0.001) & (0.001) \\ 
+  & & & & \\ 
+ metro dummy & $-$0.003$^{***}$ & $-$0.005$^{***}$ & $-$0.010$^{***}$ & $-$0.011$^{***}$ \\ 
+  & (0.001) & (0.001) & (0.002) & (0.002) \\ 
+  & & & & \\ 
+ poverty base yr & $-$0.295$^{***}$ & $-$0.286$^{***}$ & $-$0.174$^{***}$ & $-$0.162$^{***}$ \\ 
+  & (0.009) & (0.009) & (0.013) & (0.013) \\ 
+  & & & & \\ 
+ Constant & 0.046$^{***}$ & 0.040$^{***}$ & $-$0.014 & $-$0.010 \\ 
+  & (0.008) & (0.008) & (0.010) & (0.010) \\ 
+  & & & & \\ 
+\hline \\[-1.8ex] 
+state & Yes & Yes & Yes & Yes \\ 
+\hline \\[-1.8ex] 
+Observations & 3,106 & 3,106 & 3,107 & 3,107 \\ 
+R$^{2}$ & 0.516 & 0.504 & 0.349 & 0.343 \\ 
+Adjusted R$^{2}$ & 0.508 & 0.496 & 0.338 & 0.332 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{4}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+% \end{table}
+
+\end{document}

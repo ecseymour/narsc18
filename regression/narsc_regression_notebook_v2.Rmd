@@ -50,7 +50,18 @@ data$loss_dummy_0010 <- factor(data$loss_dummy_0010)
 
 
 ```{r}
-levels(data$region)
+m.spec90.1 <- lm('specialization_diff_9000 ~ ppctchg_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data)
+
+m.spec90.2 <- lm('specialization_diff_9000 ~ loss_dummy_9000 + STATE + metro_status90 + pwhite_90 + log(pop90)' , data=data)
+
+m.spec00.1 <- lm('specialization_diff_0010 ~ ppctchg_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+
+m.spec00.2 <- lm('specialization_diff_0010 ~ loss_dummy_0010 + STATE + metro_status00 + pwhite_00 + log(pop00)' , data=data)
+
+stargazer(m.spec90.1, m.spec90.2, m.spec00.1, m.spec00.2,
+          # model.names = TRUE,          
+          type='text', 
+          omit='STATE', omit.stat = c('f', 'ser'))
 ```
 
 ## specialization 2000-2010

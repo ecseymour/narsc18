@@ -1,0 +1,20 @@
+\documentclass[12pt]{article}
+
+\usepackage{booktabs,threeparttable}
+
+
+\begin{document}
+
+\section*{Data sources}
+
+All population data from NHGIS normalized time-series tables for 1990--2010. Household income data from NHGIS nominal time-series tables for 1990, 2000, and 2008--2012. Diversity and specialization calculated used four exhastive groups: Non-Hispanic White, Non-Hispanic Black, Non-Hispanic Asian, Hispanic, and Other. Differences between nominal and normalized time-series tables leads to loss of Broomfield County, CO in models requiring 2000 income and Broomfield County and Miami-Dade County in models requiring 1990 income. We excluded Alaska, Hawaii, the District of Columbia, and Puerto Rico from all calculations.
+
+\include{descriptives}
+
+\include{specialization_tbl}
+
+\include{diversity_tbl}
+
+\include{gini_tables}
+
+\end{document}

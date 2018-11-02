@@ -163,6 +163,7 @@ for p in periods:
 	df['diversity_diff_{}{}'.format(start,end)] = df['diversity_4grp_{}'.format(end)] - df['diversity_4grp_{}'.format(start)]
 	df['gini_diff_{}{}'.format(start,end)] = df['gini_{}'.format(end)] - df['gini_{}'.format(start)]
 
+df.loc[df['STATE']=='Missouri', 'region'] = 'Midwest'
 # output to file
 df.to_csv("/home/eric/Documents/franklin/narsc2018/generated_data/diversity_regression_data.csv", index_label='GISJOIN')        
 # close db

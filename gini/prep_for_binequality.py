@@ -23,8 +23,8 @@ for y in years:
 
 	cur.execute('''
 		SELECT GISJOIN
-		FROM nhgis_pop_race_norm_90_10
-		WHERE CL8AA2010 <> '' AND STATE <> 'Puerto Rico'
+		FROM county_income
+		WHERE STATE NOT IN ('Alaska', 'Hawaii', 'Puerto Rico')
 		;
 		''')
 	results = cur.fetchall()
