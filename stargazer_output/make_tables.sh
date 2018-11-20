@@ -1,0 +1,3 @@
+Rscript narsc_regression_models.R
+python make_standalone.py
+bash convert_to_png.sh

@@ -36,7 +36,7 @@ JOIN county_specialization_4grp AS B
 	ON A.GISJOIN = B.GISJOIN
 JOIN county_diversity AS C
 	ON A.GISJOIN = C.GISJOIN
-JOIN county_gini AS D
+JOIN county_gini_rpme AS D
 	ON A.GISJOIN = D.GISJOIN
 JOIN county_povrate AS F
    	ON A.GISJOIN = F.GISJOIN

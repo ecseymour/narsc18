@@ -74,7 +74,7 @@ for y in years:
 		ON A.GISJOIN = B.GISJOIN
 	JOIN county_diversity AS C
 		ON A.GISJOIN = C.GISJOIN
-	JOIN county_gini AS D
+	JOIN county_gini_rpme AS D
 		ON A.GISJOIN = D.GISJOIN
 	JOIN usda_rural_urban AS E
 		ON E.fips = A.STATEA || A.COUNTYA
@@ -135,22 +135,22 @@ for y in years:
 	df['pwhite_diff'] = df['pwhite_end'] - df['pwhite_start']
 	###############################
 	# create 'diff in diff' vars as as cty pct chg - us pct chg
-	# us_diversity_1990 = 0.50
-	# us_diversity_2000 = 0.61
-	# us_diversity_2010 = 0.67
+	us_diversity_1990 = 0.50
+	us_diversity_2000 = 0.61
+	us_diversity_2010 = 0.67
 
-	# if full_start=='1990':
-	# 	us_pct_chg = (us_diversity_2000 - us_diversity_1990) * 1.0 / us_diversity_1990 * 100
-	# 	print "us pct change: {}".format(us_pct_chg)
-	# 	df['diversity_pctchg'] = (df['diversity_end'] - df['diversity_start']) * 1.0 / df['diversity_start'] * 100 
-	# 	df['diversity_diff2'] = df['diversity_pctchg'] - us_pct_chg
-	# 	df['diversity_diff3'] = df['diversity_diff'] - (us_diversity_2000 - us_diversity_1990)
-	# else:
-	# 	us_pct_chg = (us_diversity_2010 - us_diversity_2000) * 1.0 / us_diversity_2000 * 100
-	# 	print "us pct change: {}".format(us_pct_chg)
-	# 	df['diversity_pctchg'] = (df['diversity_end'] - df['diversity_start']) * 1.0 / df['diversity_start'] * 100
-	# 	df['diversity_diff2'] = df['diversity_pctchg'] - us_pct_chg
-	# 	df['diversity_diff3'] = df['diversity_diff'] - (us_diversity_2010 - us_diversity_2000)
+	if full_start=='1990':
+		us_pct_chg = (us_diversity_2000 - us_diversity_1990) * 1.0 / us_diversity_1990 * 100
+		print "us pct change: {}".format(us_pct_chg)
+		df['diversity_pctchg'] = (df['diversity_end'] - df['diversity_start']) * 1.0 / df['diversity_start'] * 100 
+		df['diversity_diff2'] = df['diversity_pctchg'] - us_pct_chg
+		df['diversity_diff3'] = df['diversity_diff'] - (us_diversity_2000 - us_diversity_1990)
+	else:
+		us_pct_chg = (us_diversity_2010 - us_diversity_2000) * 1.0 / us_diversity_2000 * 100
+		print "us pct change: {}".format(us_pct_chg)
+		df['diversity_pctchg'] = (df['diversity_end'] - df['diversity_start']) * 1.0 / df['diversity_start'] * 100
+		df['diversity_diff2'] = df['diversity_pctchg'] - us_pct_chg
+		df['diversity_diff3'] = df['diversity_diff'] - (us_diversity_2010 - us_diversity_2000)
 
 	# output to file
 	df.to_csv("/home/eric/Documents/franklin/narsc2018/generated_data/regression_data_{}{}.csv".format(start,end), index_label='GISJOIN')        

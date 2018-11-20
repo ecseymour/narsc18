@@ -1,9 +1,25 @@
 '''
-calc county diversity score
-for 90, 00 and 10
+calc age-specific county diversity scores
+for 80, 00 and 10
 
-need to handle 1990 data differently because of 
-diff number of available cols
+age groups include:
+* under 5 years
+* 5 to 17 years
+* 18 to 64 years
+* 65 years and over
+
+racial/ethnic groups:
+* NH White
+* NH Black
+* Hispanic
+* Other
+
+NOTE: Asian is grouped with American Indian, not an independent category in these TS tables
+
+think about how to merge separate dataframes for age AND decade
+
+Need to handle 1980 "two or more races" differently
+first write script to handle 2000 and 2010
 '''
 
 import sqlite3 as sql
@@ -18,181 +34,117 @@ con = sql.connect(db)
 con.text_factory=str
 cur = con.cursor()
 
-years = ['2010', '2000', '1990']
+def calc_entropy(df):
+	cols = ['nh_white', 'nh_black', 'hisp', 'other'] 
+	for c in cols:
+		if 'nh' in c:
+			c2 = c.split('_')[1]
+		else:
+			c2 = c
+		df['p{}'.format(c2)] = df[c] * 1.0 / df['total']
+
+	# calc multigroup entropy index four GROUPS
+	# calc score excluding asian
+	# need to handle 0 values for group proportion
+	groups = ['pwhite', 'pblack', 'phisp', 'pother']
+	df['diversity_4grp'] = 0
+	for group in groups:
+		df.loc[df['{}'.format(group)] > 0.0, 'diversity_4grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
+	# scale value
+	df['diversity_4grp'] = df['diversity_4grp'] / np.log(4) 
+	return df
+
+
+years = ['2010', '2000']
+
+# for each decade, iterate through age groups, collecting race/ethnicity data for each age group
+# unfortunately, data are organized first by hispanic origin and race
 
 for y in years:
 	
 	print y
 
 	if y in ['2010', '2000']:
+
+		# under 5
 		qry = '''
 			SELECT GISJOIN, 
-			CW7AA{},
-			CW7AB{},
-			CW7AC{},
-			CW7AD{},
-			CW7AE{},
-			CW7AF{},
-			CW7AG{},
-			CW7AH{},
-			CW7AI{},
-			CW7AJ{},
-			CW7AK{},
-			CW7AL{}
-			FROM nhgis_pop_race_norm_90_10 
-			WHERE CW7AA{} <> '' AND CW7AA{} > 0 AND STATE <> 'Puerto Rico'
+			AW9AA{} AS nh_white, --NH white--
+			AW9AE{} AS nh_black, --NH black--
+			AW9AQ{} + AW9AU{} + AW9AY{} + AW9BC{} AS hisp,
+			AW9AI{} + AW9AM{} AS other  
+			FROM county_hispanic_origin_age 
+			WHERE AW9AA{} <> '' AND AW9AA{} > 0 AND STATE <> 'Puerto Rico'
 			;
-			'''.format(y,y,y,y,y,y,y,y,y,y,y,y,y,y)
+			'''.format(y,y,y,y,y,y,y,y,y,y)	
+		df = pd.read_sql(qry, con, index_col='GISJOIN')
+		df['total'] = df.sum(axis=1)
+		df_under5 = calc_entropy(df)
 
-	else: # remove F and L cols from query
+		# 5 to 17
 		qry = '''
 			SELECT GISJOIN, 
-			CW7AA{},
-			CW7AB{},
-			CW7AC{},
-			CW7AD{},
-			CW7AE{},
-			CW7AG{},
-			CW7AH{},
-			CW7AI{},
-			CW7AJ{},
-			CW7AK{}
-			FROM nhgis_pop_race_norm_90_10 
-			WHERE CW7AA{} <> '' AND CW7AA{} > 0 AND STATE <> 'Puerto Rico'
+			AW9AB{} AS nh_white, --NH white--
+			AW9AF{} AS nh_black, --NH black--
+			AW9AR{} + AW9AV{} + AW9AZ{} + AW9BD{} AS hisp,
+			AW9AJ{} + AW9AN{} AS other  
+			FROM county_hispanic_origin_age 
+			WHERE AW9AB{} <> '' AND AW9AB{} > 0 AND STATE <> 'Puerto Rico'
 			;
-			'''.format(y,y,y,y,y,y,y,y,y,y,y,y)
+			'''.format(y,y,y,y,y,y,y,y,y,y)	
+		df = pd.read_sql(qry, con, index_col='GISJOIN')
+		df['total'] = df.sum(axis=1)
+		df_5to17 = calc_entropy(df)
 
-	# print qry
+		# 18 to 64
+		qry = '''
+			SELECT GISJOIN, 
+			AW9AC{} AS nh_white, --NH white--
+			AW9AG{} AS nh_black, --NH black--
+			AW9AS{} + AW9AW{} + AW9BA{} + AW9BE{} AS hisp,
+			AW9AK{} + AW9AO{} AS other  
+			FROM county_hispanic_origin_age 
+			WHERE AW9AC{} <> '' AND AW9AC{} > 0 AND STATE <> 'Puerto Rico'
+			;
+			'''.format(y,y,y,y,y,y,y,y,y,y)	
+		df = pd.read_sql(qry, con, index_col='GISJOIN')
+		df['total'] = df.sum(axis=1)
+		df_18to64 = calc_entropy(df)
 
-	
-	df = pd.read_sql(qry, con, index_col='GISJOIN')
+		# 65+
+		qry = '''
+			SELECT GISJOIN, 
+			AW9AD{} AS nh_white, --NH white--
+			AW9AH{} AS nh_black, --NH black--
+			AW9AT{} + AW9AX{} + AW9BB{} + AW9BF{} AS hisp,
+			AW9AL{} + AW9AP{} AS other  
+			FROM county_hispanic_origin_age 
+			WHERE AW9AD{} <> '' AND AW9AC{} > 0 AND STATE <> 'Puerto Rico'
+			;
+			'''.format(y,y,y,y,y,y,y,y,y,y)	
+		df = pd.read_sql(qry, con, index_col='GISJOIN')
+		df['total'] = df.sum(axis=1)
+		df_65plus = calc_entropy(df)
 
-	# calc total by summing all cols
-	alpha_list = []
-	for c in ascii_uppercase:
-		alpha_list.append(c)
-		if c=='L':
-			break
+		# merged dfs
+		merged = pd.merge(df_under5, df_5to17, left_index=True, right_index=True, suffixes=('_under5', '_5to17'))
+		df_18to64 = df_18to64.add_suffix('_18to64')
+		df_65plus = df_65plus.add_suffix('_65plus')
+		merged = pd.merge(merged, df_18to64, left_index=True, right_index=True)
+		merged = pd.merge(merged, df_65plus, left_index=True, right_index=True)
 
-	df['total'] = 0
-	total_us = 0
-	if y in ['2010', '2000']:
-		for a in alpha_list:
-			df['total'] += df['CW7A{}{}'.format(a, y)]
-	else:
-		for a in alpha_list:
-			if a not in ['F', 'L']:
-				df['total'] += df['CW7A{}{}'.format(a, y)]
-			else:
-				pass
+		if y=='2010':
+			merged_2010 = merged
+			merged_2010 = merged_2010.add_suffix('_2010')
+		elif y=='2000':
+			merged_2000 = merged
+			merged_2000 = merged_2000.add_suffix('_2000')
 
-	# calc pct NH white, NH black, and NH asian
-	df['nh_white'] = df['CW7AA{}'.format(y)]
-	df['pwhite'] = df['nh_white'] * 1.0 / df['total']
+merged = pd.merge(merged_2010, merged_2000, left_index=True, right_index=True)
+print merged.head()
 
-	df['nh_black'] = df['CW7AB{}'.format(y)]
-	df['pblack'] = df['nh_black'] / df['total']
-	
-	df['nh_asian'] = df['CW7AD{}'.format(y)]	
-	df['pasian'] = df['nh_asian'] * 1.0 / df['total']
-
-	# calc total and share hispanic
-	df['hisp'] = 0
-	if y in ['2010', '2000']:
-		for alpha in ['G', 'H', 'I', 'J', 'K', 'L']:
-			df['hisp'] += df['CW7A{}{}'.format(alpha, y)] 
-	
-		df['other'] = df['CW7AC{}'.format(y)] + df['CW7AE{}'.format(y)] + df['CW7AF{}'.format(y)]
-	
-	else: # if 1990
-		for alpha in ['G', 'H', 'I', 'J', 'K']:
-			df['hisp'] += df['CW7A{}{}'.format(alpha, y)] 
-
-		df['other'] = df['CW7AC{}'.format(y)] + df['CW7AE{}'.format(y)]
-
-	df['phisp'] = df['hisp'] * 1.0 / df['total']		
-	df['pother'] = df['other'] * 1.0 / df['total']
-
-	# calc multigroup entropy index FIVE GROUPS
-	# calc score excluding asian
-	# need to handle 0 values for group proportion
-	groups = ['pwhite', 'pblack', 'pasian', 'phisp', 'pother']
-	df['diversity_5grp'] = 0
-	for group in groups:
-		df.loc[df['{}'.format(group)] > 0.0, 'diversity_5grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
-
-	print df['diversity_5grp'].describe()
-	##################################################################################
-	# calc second measure grouping asian w/ "other" populations
-	df['other_4grp'] = df['other'] + df['nh_asian']
-	df['pother_4grp'] = df['other_4grp'] * 1.0 / df['total']
-	groups = ['pwhite', 'pblack', 'phisp', 'pother_4grp']
-	df['diversity_4grp'] = 0
-	df['interaction_4grp'] = 0 # Simpson's interaction index
-	df['shannon_4grp'] = 0
-	df['D1_4grp'] = 0 # Simpson's diversity index
-	for group in groups:
-		if group == 0:
-			df.loc[df['{}'.format(group)] > 0.0, 'diversity_4grp'] +=  0
-			df.loc[df['{}'.format(group)] > 0.0, 'D1_4grp'] +=  0
-			df.loc[df['{}'.format(group)] > 0.0, 'interaction_4grp'] += df['{}'.format(group)] * ( 1 - df['{}'.format(group)] )
-			df.loc[df['{}'.format(group)] > 0.0, 'shannon_4grp'] += df['{}'.format(group)] * np.log( df['{}'.format(group)] )
-		else:
-			df.loc[df['{}'.format(group)] > 0.0, 'diversity_4grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
-			df.loc[df['{}'.format(group)] > 0.0, 'D1_4grp'] += df['{}'.format(group)] ** 2
-			df.loc[df['{}'.format(group)] > 0.0, 'interaction_4grp'] += df['{}'.format(group)] * ( 1 - df['{}'.format(group)] )
-			df.loc[df['{}'.format(group)] > 0.0, 'shannon_4grp'] += df['{}'.format(group)] * np.log( df['{}'.format(group)] )
-
-	df['D1_4grp'] = 1 - df['D1_4grp'] 
-	df['shannon_4grp'] = df['shannon_4grp'] * -1
-	##################################################################################
-	# calc diversity excluding asian and "other" populations
-	# recalculate percantages using sum of nh white, nh black, and hispanic
-	# get counts for those groups and sum to create total
-	
-	df['total_3grp'] = df['nh_white'] + df['nh_black'] + df['hisp']
-
-	df['pwhite_3grp'] = df['nh_white'] * 1.0 / df['total_3grp']
-	df['pblack_3grp'] = df['nh_black'] * 1.0 / df['total_3grp']
-	df['phisp_3grp'] = df['hisp'] * 1.0 / df['total_3grp']
-
-	groups_3grp = ['pwhite_3grp', 'pblack_3grp', 'phisp_3grp']
-	df['diversity_3grp'] = 0
-	for group in groups_3grp:
-		df.loc[df['{}'.format(group)] > 0.0, 'diversity_3grp'] += df['{}'.format(group)] * np.log( 1.0 / df['{}'.format(group)] )
-	##################################################################################
-
-	# create separate dataframes for each year to merge into single df
-	groups = ['nh_white', 'nh_black', 'nh_asian', 'hisp', 'other', 
-		'pwhite', 'pblack', 'pasian', 'phisp', 'pother', 
-		'diversity_5grp', 'diversity_4grp', 'D1_4grp', 'interaction_4grp', 'shannon_4grp', 'diversity_3grp', 'total', 'total_3grp']
-	
-	if y == "2010":
-		df_2010 = df[groups]
-	elif y == "2000":
-		df_2000 = df[groups]
-	elif y == "1990":
-		df_1990 = df[groups]
-
-	# df.to_csv("/home/eric/Documents/franklin/depop_impacts/data/{}_diversity_{}.csv".format(g, y))
-
-merged = pd.merge(df_2010, df_2000, left_index=True, right_index=True, suffixes=("_10", "_00"))
-df_1990 = df_1990.add_suffix("_90")
-merged = pd.merge(merged, df_1990, left_index=True, right_index=True, )
-# print merged.columns
-
-merged.to_sql("county_diversity", con, if_exists="replace")
+merged.to_sql("county_diversity_by_age", con, if_exists="replace")
 
 con.close()
-
-# from matplotlib import pyplot as plt
-# import seaborn as sns
-# sns.set(style="ticks")
-
-# # merged.plot.scatter('diversity_4grp_10', 'shannon_4grp_10')
-# cols = ['diversity_4grp_10', 'shannon_4grp_10', 'D1_4grp_10', 'interaction_4grp_10']
-
-# sns.pairplot(merged[cols])
-# plt.show()
 
 print 'done'

@@ -1,0 +1,57 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(binequality)
+library(glue)
+```
+
+```{r}
+data("state_bins")
+
+use_states <- which(state_bins[, 'State']=='Texas')
+TX <- state_bins[use_states,]
+```
+
+```{r}
+GA_run <- fitFunc(ID = TX[,'State'], hb = TX[,'hb'], bin_min = TX[,'bin_min'], bin_max = TX[,'bin_max'],
+                            obs_mean = rep(NA, length(use_states)), ID_name = "State", distribution = "GA", distName = "GA",
+                  qFunc = qGA)
+```
+```{r}
+GA_run
+```
+
+
+```{r}
+LNO_WEI_GA <- run_GB_family(ID = TX[,'State'], hb = TX[,'hb'], bin_min = TX[,'bin_min'], bin_max = TX[,'bin_max'],
+                            obs_mean = rep(NA, length(use_states)), ID_name = "State", modelsToFit = c('LOGNO', 'WEI', 'GA', 'DAGUM'))
+```
+
+```{r}
+LNO_WEI_GA$fit
+
+runGB
+```
+
+
+```{r}
+# get mids for non-parametric estimation
+myMids <- getMids(ID = TX[,'State'], hb = TX[,'hb'], lb = TX[,'bin_min'], ub = TX[,'bin_max'] )
+```
+
+```{r}
+TX$mids <- myMids$mids$mids
+
+TX
+```
+
+```{r}
+midStats(data.frame(myMids$mids)))
+```

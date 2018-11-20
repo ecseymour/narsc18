@@ -41,7 +41,7 @@ for y in years:
 		SUM(B71AN{}),
 		SUM(B71AO{})
 		FROM county_income
-		WHERE STATEFP NOT IN ('72')
+		WHERE STATEFP NOT IN ('72', '02', '15') --exclude PR, AK, and HI--
 		;
 		'''.format(y,y,y,y,y,y,y,y,y,y,y,y,y,y,y)
 	
